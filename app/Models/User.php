@@ -18,10 +18,24 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    'name', 
+    'apellido', 
+    'telefono', 
+    'edad', 
+    'fecha_nac', 
+    'domicilio', 
+    'id_rol', 
+    'id_tipo', 
+    'id_sucursal', 
+    'nobre_usuario', 
+    'email', 
+    'password'];
+
+    public function sucursales()
+{
+    return $this->belongsToMany(Sucursal::class, 'sucursal_usuario', 'id_usuario', 'id_sucursal');
+}
+
 
     /**
      * The attributes that should be hidden for serialization.

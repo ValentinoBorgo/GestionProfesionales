@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Resources\SucursalResource;
 
 class UserResource extends Resource
 {
@@ -26,22 +27,32 @@ class UserResource extends Resource
                     ->label('Nombre')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('apellido')
+                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('telefono')
+                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('edad')
+                    ->required()
                     ->numeric()
                     ->minValue(0),
                 Forms\Components\DateTimePicker::make('fecha_nac'),
                 Forms\Components\TextInput::make('domicilio')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('id_rol')
-                    ->label('rol')
+                Forms\Components\Select::make('id_rol')
+                    ->options([
+                        1 => 'Administrador',
+                        2 => 'Secretario',
+                        3 => 'Profesional',
+                        4 => 'Paciente',
+                    ])
+                    ->label('Rol')
+                    ->required(),
+                Forms\Components\TextInput::make('id_tipo') 
                     ->numeric(),
-                Forms\Components\TextInput::make('id_tipo')
-                    ->numeric(),
-                Forms\Components\TextInput::make('id_sucursal')
-                    ->numeric(),
+                    Forms\Components\Select::make('sucursales')
+                    ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las sucursales
+                    ->multiple(), // para buscar hay q tipear el nombre de la sucursal
                 Forms\Components\TextInput::make('nobre_usuario')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
@@ -65,20 +76,18 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('apellido')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('telefono')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('edad')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('telefono'),
+                Tables\Columns\TextColumn::make('edad'),
                 Tables\Columns\TextColumn::make('fecha_nac')
                     ->dateTime(),
-                Tables\Columns\TextColumn::make('domicilio')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('domicilio'),
                 Tables\Columns\TextColumn::make('id_rol')
-                    ->label('rol')
+                    ->label('Rol')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('id_tipo')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('id_sucursal')
+                Tables\Columns\TextColumn::make('sucursales.nombre')
+                    ->label('Sucursal')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nobre_usuario')
                     ->searchable(),
