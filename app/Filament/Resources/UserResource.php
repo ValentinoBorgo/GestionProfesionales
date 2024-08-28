@@ -19,10 +19,11 @@ class UserResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
+        return $form    
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
+                    ->label('Nombre')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('apellido')
                     ->maxLength(255),
@@ -35,6 +36,7 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('domicilio')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('id_rol')
+                    ->label('rol')
                     ->numeric(),
                 Forms\Components\TextInput::make('id_tipo')
                     ->numeric(),
@@ -59,6 +61,7 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('apellido')
                     ->searchable(),
@@ -71,6 +74,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('domicilio')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('id_rol')
+                    ->label('rol')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('id_tipo')
                     ->searchable(),
