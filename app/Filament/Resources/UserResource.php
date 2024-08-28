@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
+use App\Models\Rol;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -39,19 +40,10 @@ class UserResource extends Resource
                 Forms\Components\DateTimePicker::make('fecha_nac'),
                 Forms\Components\TextInput::make('domicilio')
                     ->maxLength(255),
-                Forms\Components\Select::make('id_rol')
-                    ->options([
-                        1 => 'Administrador',
-                        2 => 'Secretario',
-                        3 => 'Profesional',
-                        4 => 'Paciente',
-                    ])
-                    ->label('Rol')
-                    ->required(),
                 Forms\Components\TextInput::make('id_tipo') 
                     ->numeric(),
                     Forms\Components\Select::make('sucursales')
-                    ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las sucursales
+                    ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
                     ->multiple(), // para buscar hay q tipear el nombre de la sucursal
                 Forms\Components\TextInput::make('nobre_usuario')
                     ->maxLength(255),
@@ -59,6 +51,12 @@ class UserResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('roles')
+                    ->multiple()
+                    ->relationship('roles', 'nombre')
+                    ->label('Roles')
+                    ->preload()
+                    ->required(),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\TextInput::make('password')
                     ->password()
@@ -81,12 +79,9 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('fecha_nac')
                     ->dateTime(),
                 Tables\Columns\TextColumn::make('domicilio'),
-                Tables\Columns\TextColumn::make('id_rol')
-                    ->label('Rol')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('id_tipo')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('sucursales.nombre')
+                    Tables\Columns\TextColumn::make('sucursales.nombre') // Accede a la relación y a la propiedad
                     ->label('Sucursal')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nobre_usuario')
@@ -96,6 +91,13 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
+                
+                Tables\Columns\TextColumn::make('roles')
+                    ->label('Roles')
+                    ->formatStateUsing(function ($record) {
+                        return $record->roles->pluck('nombre')->implode(', ');
+                    })
+                    ->searchable(),    
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -106,7 +108,6 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                // Puedes añadir filtros personalizados aquí si es necesario
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -134,3 +135,5 @@ class UserResource extends Resource
         ];
     }
 }
+
+

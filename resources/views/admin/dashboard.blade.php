@@ -15,7 +15,7 @@
                 <li><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                 <li><a href="#">Profile</a></li>
                 <li><a href="#">Registrar Usuarios</a></li>
-                <li><a href="#">Lista de Profesionales</a></li>
+                <li><a href="{{ route('admin.profile') }}">Lista de Profesionales</a></li>
                 <li><a href="#">Crear Sucursal</a></li>
                 <li><a href="#">Dar de Alta Usuario</a></li>
                 <li><a href="#">Dar de Baja Usuario</a></li>

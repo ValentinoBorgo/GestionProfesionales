@@ -16,6 +16,7 @@ class Profesional extends Model
         'ocupacion',
         'fecha_baja',
         'id',
+        'id_usuario',
     ];
 
     public function persona()

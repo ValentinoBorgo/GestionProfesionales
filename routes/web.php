@@ -17,8 +17,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    // Otras rutas del administrador
-});
 

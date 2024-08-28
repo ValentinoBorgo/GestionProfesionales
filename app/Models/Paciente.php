@@ -5,20 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Secretario extends Model
+class Paciente extends Model
 {
-    use HasFactory;
-
-    protected $table = 'secretario';
+    protected $table = 'paciente';
 
     protected $fillable = [
-        'fecha_baja',
+        'fecha_alta',
         'id',
         'id_usuario',
     ];
 
-    public function persona()
+    public function fichaMedica()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->hasOne(FichaMedica::class, 'id_paciente');
     }
 }
