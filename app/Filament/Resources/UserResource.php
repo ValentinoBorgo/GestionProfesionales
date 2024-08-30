@@ -47,10 +47,6 @@ class UserResource extends Resource
                     ->multiple(), // para buscar hay q tipear el nombre de la sucursal
                 Forms\Components\TextInput::make('nobre_usuario')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
                 Forms\Components\Select::make('roles')
                     ->multiple()
                     ->relationship('roles', 'nombre')
