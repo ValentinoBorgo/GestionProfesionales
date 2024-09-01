@@ -19,6 +19,12 @@ class RolResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationLabel = 'Rol';
+
+     protected static ?string $pluralLabel = 'Rols';
+
+    protected static ?string $label = 'Rol';
+
     public static function form(Form $form): Form
     {
         return $form

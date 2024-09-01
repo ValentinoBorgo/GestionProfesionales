@@ -14,7 +14,7 @@ return new class extends Migration
     Schema::create('sucursal_usuario', function (Blueprint $table) {
         $table->id();
         $table->foreignId('id_usuario')->constrained('users')->onDelete('cascade');
-        $table->foreignId('id_sucursal')->constrained('sucursales')->onDelete('cascade');
+        $table->foreignId('id_sucursal')->constrained('sucursal')->onDelete('cascade');
         $table->timestamps();
     });
 }

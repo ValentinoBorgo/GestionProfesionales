@@ -11,3 +11,5 @@ php artisan migrate:fresh
 php artisan make:filament-user
 
 Para poder cambiar un campo en la base de datos primera tener que modificar la ultima migration y despues el userResource dentro de filament
+
+php artisan migrate:generate

@@ -19,8 +19,6 @@ class SucursalUsuario extends Model
         return $this->belongsTo(Sucursal::class, 'id_sucursal');
     }
 
-    use App\Models\SucursalUsuario;
-
     public static function afterSave($record)
     {
     

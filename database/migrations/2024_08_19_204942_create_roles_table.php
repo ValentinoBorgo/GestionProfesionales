@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        Schema::create('rol', function (Blueprint $table) {
             $table->id(); // Define el campo id_rol como clave primaria
             $table->string('nombre'); // Define el campo nombre como una cadena de texto
             $table->timestamps(); // Agrega los campos created_at y updated_at
@@ -24,7 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('roles');
+        Schema::dropIfExists('rol');
     }
 };
 

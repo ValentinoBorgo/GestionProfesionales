@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sucursales', function (Blueprint $table) {
+        Schema::create('sucursal', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('nombre')->nullable();
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('provincia')->nullable();
             $table->string('razon_social')->nullable();
             $table->string('codigo_postal')->nullable();
-            $table->integer('telefono')->nullable();
+            $table->bigInteger('telefono')->nullable();
             $table->string('horarios')->nullable();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sucursals');
+        Schema::dropIfExists('sucursal');
     }
 };

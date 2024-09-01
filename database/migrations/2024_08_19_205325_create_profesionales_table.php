@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('profesionales', function (Blueprint $table) {
+        Schema::create('profesional', function (Blueprint $table) {
             $table->id(); // Esto crea la columna 'id' como clave primaria autoincremental
             $table->string('titulo')->nullable();
             $table->timestamps();
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('profesionales');
+        Schema::dropIfExists('profesional');
     }
 };

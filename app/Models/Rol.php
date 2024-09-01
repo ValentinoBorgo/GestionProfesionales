@@ -9,7 +9,7 @@ class Rol extends Model
 {
     use HasFactory;
 
-    protected $table = 'roles';
+    protected $table = 'rol';
 
     protected $primaryKey = 'id'; // Definir la clave primaria si no sigue la convención estándar
 

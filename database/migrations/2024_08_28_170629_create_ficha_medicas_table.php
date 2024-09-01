@@ -27,7 +27,7 @@ return new class extends Migration
             $table->integer('vinculo')->nullable();
             $table->string('dni')->nullable();
             $table->string( 'telefono_persona_responsable')->nullable();
-            $table->foreignId('id_paciente')->constrained('pacientes')->onDelete('cascade');
+            $table->foreignId('id_paciente')->constrained('paciente')->onDelete('cascade');
         });
     }
 

@@ -27,6 +27,11 @@ class UserResource extends Resource
                     ->required()
                     ->label('Nombre')
                     ->maxLength(255),
+                Forms\Components\TextInput::make('email')
+                    ->email()  // Validación para formato de email
+                    ->required()  // Puedes quitar esta línea si no deseas que sea obligatorio
+                    ->maxLength(255)
+                    ->label('Correo Electrónico'),
                 Forms\Components\TextInput::make('apellido')
                     ->required()
                     ->maxLength(255),
@@ -44,13 +49,13 @@ class UserResource extends Resource
                     ->numeric(),
                     Forms\Components\Select::make('sucursales')
                     ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
-                    ->multiple(), // para buscar hay q tipear el nombre de la sucursal
+                    ->label('Sucursal'),
                 Forms\Components\TextInput::make('nobre_usuario')
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
                     ->multiple()
                     ->relationship('roles', 'nombre')
-                    ->label('Roles')
+                    ->label('Rol')
                     ->preload()
                     ->required(),
                 Forms\Components\DateTimePicker::make('email_verified_at'),

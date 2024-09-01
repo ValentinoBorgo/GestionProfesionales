@@ -14,8 +14,8 @@ return new class extends Migration
             $table->timestamps();
 
             // Definición de claves foráneas
-            $table->foreign('id_rol')->references('id')->on('roles')->onDelete('cascade');
-            $table->foreign('id_permiso')->references('id')->on('permisos')->onDelete('cascade');
+            $table->foreign('id_rol')->references('id')->on('rol')->onDelete('cascade');
+            $table->foreign('id_permiso')->references('id')->on('permiso')->onDelete('cascade');
 
             // Clave primaria compuesta
             $table->primary(['id_rol', 'id_permiso']);

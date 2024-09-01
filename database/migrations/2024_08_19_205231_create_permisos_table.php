@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permisos', function (Blueprint $table) {
+        Schema::create('permiso', function (Blueprint $table) {
             $table->id(); // Define el ID como id_permiso
             $table->string('nombre'); // Campo para el nombre del permiso
             $table->timestamps(); // Timestamps para created_at y updated_at
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('permisos');
+        Schema::dropIfExists('permiso');
     }
 };

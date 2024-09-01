@@ -19,6 +19,12 @@ class SucursalResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationLabel = 'Sucursal';
+
+    protected static ?string $pluralLabel = 'Sucursals';
+
+   protected static ?string $label = 'Sucursal';
+
     public static function form(Form $form): Form
     {
         return $form
