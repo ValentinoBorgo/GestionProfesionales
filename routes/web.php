@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SecretarioController;
+use App\Http\Controllers\PacienteController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,4 +18,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+Route::get('secretario', [SecretarioController::class, 'index']);
+Route::get('secretario/ver-pacientes', [PacienteController::class, 'verPacientes']);
+Route::get('secretario/modificar-turnos', [SecretarioController::class, 'modificarTurnos']);
+Route::get('secretario/agendar-turnos', [SecretarioController::class, 'agendarTurnos']);
+Route::get('secretario/dar-alta-paciente', [PacienteController::class, 'create'])->name('pacientes.create');
+Route::post('secretario/dar-alta-paciente', [PacienteController::class, 'store'])->name('pacientes.store');

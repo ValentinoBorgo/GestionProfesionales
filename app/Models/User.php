@@ -41,7 +41,7 @@ class User extends Authenticatable
     return $this->hasOne(Secretario::class, 'id_usuario');
     }
 
-    public function paciente()
+    public function pacientes()
     {
     return $this->hasOne(Paciente::class, 'id_usuario');
     }

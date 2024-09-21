@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestamps();
 
             // Si 'id' se refiere a una clave foránea, define la relación aquí
-            $table->foreignId('id_persona')->constrained('users')->onDelete('cascade'); // Ejemplo si corresponde
+            $table->foreignId('id_usuario')->constrained('users')->onDelete('cascade'); // Ejemplo si corresponde
         });
     }
 

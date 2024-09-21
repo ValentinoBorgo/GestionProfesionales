@@ -19,4 +19,9 @@ class Paciente extends Model
     {
         return $this->hasOne(FichaMedica::class, 'id_paciente');
     }
+
+    public function user()
+{
+    return $this->belongsTo(User::class, 'id_usuario');
+}
 }
