@@ -27,11 +27,14 @@ class UserResource extends Resource
                     ->required()
                     ->label('Nombre')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('email')
+                    Forms\Components\TextInput::make('email')
                     ->email()  // Validación para formato de email
-                    ->required()  // Puedes quitar esta línea si no deseas que sea obligatorio
+                    ->required()  // Obligatorio
                     ->maxLength(255)
-                    ->label('Correo Electrónico'),
+                    ->label('Correo Electrónico')
+                    ->unique(ignoreRecord: true) // Valida que el correo sea único, ignorando el registro actual al editar
+                    ->helperText('Por favor, utiliza un correo único.')
+                    ->validationAttribute('correo electrónico'), // Cambia el nombre del campo en los mensajes de error                
                 Forms\Components\TextInput::make('apellido')
                     ->required()
                     ->maxLength(255),
@@ -59,10 +62,27 @@ class UserResource extends Resource
                     ->preload()
                     ->required(),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
+                Forms\Components\Toggle::make('editar_password')
+                ->label('Editar contraseña')
+                ->reactive() // Hace que sea reactivo
+                ->helperText('Habilita esta opción para modificar la contraseña.')
+                ->visible(fn ($livewire) => $livewire instanceof Pages\EditUser),
                 Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->required()
-                    ->maxLength(255),
+                ->password()
+                ->required()
+                ->maxLength(255)
+                ->label('Contraseña')
+                ->rules([
+                    'required', 
+                    'string', 
+                    'min:8',                           // Mínimo 8 caracteres
+                    'regex:/[a-z]/',                   // Al menos una letra minúscula
+                    'regex:/[A-Z]/',                   // Al menos una letra mayúscula
+                    'regex:/[0-9]/',                   // Al menos un número
+                    'regex:/[@$!%*?&]/'                // Al menos un carácter especial
+                ])
+                ->helperText('Debe contener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.')
+                ->visible(fn ($livewire, callable $get) => $livewire instanceof Pages\CreateUser || $get('editar_password'))
             ]);
     }
 

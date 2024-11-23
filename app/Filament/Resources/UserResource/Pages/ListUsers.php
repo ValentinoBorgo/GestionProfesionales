@@ -16,4 +16,29 @@ class ListUsers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    protected function getTableFilters(): array
+    {
+        return [
+            SelectFilter::make('tipo_usuario')
+                ->label('Filtrar por tipo de usuario')
+                ->options([
+                    'profesional' => 'Profesional',
+                    'paciente' => 'Paciente',
+                ])
+                ->query(function ($query, $value) {
+                    if ($value === 'profesional') {
+                        return $query->whereHas('roles', function ($subQuery) {
+                            $subQuery->where('nombre', 'Profesional');
+                        });
+                    }
+
+                    if ($value === 'paciente') {
+                        return $query->whereHas('roles', function ($subQuery) {
+                            $subQuery->where('nombre', 'Paciente');
+                        });
+                    }
+                }),
+        ];
+    }
 }

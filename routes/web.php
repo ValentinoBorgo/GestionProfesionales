@@ -15,7 +15,7 @@ use App\Http\Controllers\PacienteController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('dashboard/login');
 });
 
 Route::get('secretario', [SecretarioController::class, 'index']);
