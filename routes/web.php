@@ -19,8 +19,10 @@ Route::get('/', function () {
 });
 
 Route::get('secretario', [SecretarioController::class, 'index']);
-Route::get('secretario/ver-pacientes', [PacienteController::class, 'verPacientes']);
+Route::get('secretario/ver-pacientes', [SecretarioController::class, 'verPacientes'])->name('secretario.ver-pacientes');
 Route::get('secretario/modificar-turnos', [SecretarioController::class, 'modificarTurnos']);
 Route::get('secretario/agendar-turnos', [SecretarioController::class, 'agendarTurnos']);
 Route::get('secretario/dar-alta-paciente', [PacienteController::class, 'create'])->name('pacientes.create');
 Route::post('secretario/dar-alta-paciente', [PacienteController::class, 'store'])->name('pacientes.store');
+Route::get('secretario/editar-ficha/{id}', [SecretarioController::class, 'editarFicha'])->name('secretario.editar-ficha');
+Route::put('secretario/actualizar-ficha/{id}', [SecretarioController::class, 'actualizarFicha'])->name('secretario.actualizar-ficha');
