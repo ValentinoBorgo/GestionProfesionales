@@ -22,7 +22,7 @@ return new class extends Migration
             $table->integer('id_rol')->nullable();
             $table->integer('id_tipo')->nullable();
             $table->integer('id_sucursal')->nullable();
-            $table->string('nobre_usuario')->nullable();
+            $table->string('nombre_usuario')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

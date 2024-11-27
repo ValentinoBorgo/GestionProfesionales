@@ -13,7 +13,6 @@ class FichaMedica extends Model
 
     protected $fillable = [
         'id',
-        'id_paciente',
         'nombre',
         'apellido',
         'edad',
@@ -31,6 +30,6 @@ class FichaMedica extends Model
 
     public function paciente()
     {
-        return $this->belongsTo(Paciente::class, 'id_paciente');
+        return $this->hasOne(Paciente::class, 'id_ficha_medica');
     }
 }

@@ -12,16 +12,12 @@ class Paciente extends Model
     protected $fillable = [
         'fecha_alta',
         'id',
-        'id_usuario',
+        'id_ficha_medica',
     ];
 
     public function fichaMedica()
     {
-        return $this->hasOne(FichaMedica::class, 'id_paciente');
+        return $this->belongsTo(fichaMedica::class, 'id_ficha_medica');
     }
 
-    public function user()
-{
-    return $this->belongsTo(User::class, 'id_usuario');
-}
 }

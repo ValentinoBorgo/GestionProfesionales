@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('paciente', function (Blueprint $table) {
-            $table->id(); // Esto crea la columna 'id' como clave primaria autoincremental
-            $table->string('fecha_alta')->nullable();
+        Schema::create('tipo_persona', function (Blueprint $table) {
+            $table->id();
+            $table->enum('tipo', ['ADMINISTRADOR', 'SECRETARIO', 'PROFESIONAL','PACIENTE'])->default('PACIENTE');
             $table->timestamps();
-
-            $table->foreignId('id_ficha_medica')->nullable()->constrained('ficha_medica')->onDelete('cascade');
         });
     }
 
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('paciente');
+        Schema::dropIfExists('tipo_persona');
     }
 };
