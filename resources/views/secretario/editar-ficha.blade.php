@@ -72,21 +72,21 @@
 
     <script>
     $(document).ready(function() {
-        // Date format validation function
+        
         function isValidDateFormat(dateString) {
-            // Regular expression for YYYY-MM-DD format
+           
             const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
             
             if (!dateRegex.test(dateString)) {
                 return false;
             }
             
-            // Additional check to ensure it's a valid date
+          
             const date = new Date(dateString);
             return date instanceof Date && !isNaN(date);
         }
 
-        // Función para validar campos
+       
         function validateField(fieldId, errorMessage) {
             const field = $(`#${fieldId}`);
             const errorSpan = $(`#${fieldId}-error`);
@@ -126,7 +126,7 @@
         $('#fichaForm').on('submit', function(e) {
             let hasErrors = false;
             
-            // Validar todos los campos requeridos
+            
             $('input[required]').each(function() {
                 const value = $(this).val().trim();
                 if (value === '') {

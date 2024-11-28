@@ -47,4 +47,6 @@
             @endforeach
         </tbody>
     </table>
-    <a href
+    <a href="{{ route('pacientes.create') }}">Dar de Alta Paciente</a>
+</body>
+</html>

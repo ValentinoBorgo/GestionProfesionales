@@ -1,95 +1,66 @@
-<form action="{{ route('pacientes.store') }}" method="POST">
-    @csrf
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dar de Alta Paciente</title>
+</head>
+<body>
+    <h1>Dar de Alta Paciente</h1>
+    
+    @if ($errors->any())
+        <div style="color: red;">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-    <!-- Campos para el Usuario -->
-    <h3>Datos del Paciente</h3>
-    <div>
-        <label for="name">Nombre:</label>
-        <input type="text" id="name" name="name" required>
-    </div>
+    <form action="{{ route('pacientes.store') }}" method="POST">
+        @csrf
 
-    <div>
-        <label for="apellido">Apellido:</label>
-        <input type="text" id="apellido" name="apellido" required>
-    </div>
+        <label>Nombre: 
+            <input type="text" name="nombre" value="{{ old('nombre') }}" required>
+        </label><br>
+        <label>Apellido: 
+            <input type="text" name="apellido" value="{{ old('apellido') }}" required>
+        </label><br>
+        <label>Edad: 
+            <input type="text" name="edad" value="{{ old('edad') }}" required>
+        </label><br>
+        <label>Fecha Nacimiento: 
+            <input type="date" name="fecha_nac" value="{{ old('fecha_nac') }}" required>
+        </label><br>
+        <label>Ocupacion: 
+            <input type="text" name="ocupacion" value="{{ old('ocupacion') }}" required>
+        </label><br>
+        <label>Domicilio: 
+            <input type="text" name="domicilio" value="{{ old('domicilio') }}" required>
+        </label><br>
+        <label>Telefono: 
+            <input type="text" name="telefono" value="{{ old('telefono') }}" required>
+        </label><br>
+        <label>DNI: 
+            <input type="text" name="dni" value="{{ old('dni') }}" required>
+        </label><br>
+        <label>Localidad: 
+            <input type="text" name="localidad" value="{{ old('localidad') }}" required>
+        </label><br>
+        <label>Provincia: 
+            <input type="text" name="provincia" value="{{ old('provincia') }}" required>
+        </label><br>
+        <label>Persona Responsable: 
+            <input type="text" name="persona_responsable" value="{{ old('persona_responsable') }}" required>
+        </label><br>
+        <label>Vinculo: 
+            <input type="text" name="vinculo" value="{{ old('vinculo') }}" required>
+        </label><br>
+        <label>Tel. Responsable: 
+            <input type="text" name="telefono_persona_responsable" value="{{ old('telefono_persona_responsable') }}" required>
+        </label><br>
 
-    <div>
-        <label for="telefono">Teléfono:</label>
-        <input type="text" id="telefono" name="telefono" required>
-    </div>
-
-    <div>
-        <label for="edad">Edad:</label>
-        <input type="number" id="edad" name="edad" required>
-    </div>
-
-    <div>
-        <label for="domicilio">Domicilio:</label>
-        <input type="text" id="domicilio" name="domicilio" required>
-    </div>
-
-    <div>
-        <label for="nombre_usuario">Nombre de Usuario:</label>
-        <input type="text" id="nombre_usuario" name="nobre_usuario" required>
-    </div>
-
-    <div>
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-    </div>
-
-    <div>
-        <label for="password">Contraseña:</label>
-        <input type="password" id="password" name="password" required>
-    </div>
-
-    <!-- Campos para la Ficha Médica -->
-    <h3>Datos de la Ficha Médica</h3>
-    <div>
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" required>
-    </div>
-    <div>
-        <label for="fecha_nac">Fecha de Nacimiento:</label>
-        <input type="text" id="fecha_nac" name="fecha_nac" required>
-    </div>
-
-    <div>
-        <label for="ocupacion">Ocupación:</label>
-        <input type="text" id="ocupacion" name="ocupacion" required>
-    </div>
-
-    <div>
-        <label for="localidad">Localidad:</label>
-        <input type="text" id="localidad" name="localidad" required>
-    </div>
-
-    <div>
-        <label for="provincia">Provincia:</label>
-        <input type="text" id="provincia" name="provincia" required>
-    </div>
-
-    <div>
-        <label for="persona_responsable">Persona Responsable:</label>
-        <input type="text" id="persona_responsable" name="persona_responsable" required>
-    </div>
-
-    <div>
-        <label for="vinculo">Vínculo:</label>
-        <input type="number" id="vinculo" name="vinculo" required>
-    </div>
-
-    <div>
-        <label for="dni">DNI:</label>
-        <input type="number" id="dni" name="dni" required>
-    </div>
-
-    <div>
-        <label for="telefono_persona_responsable">Teléfono Persona Responsable:</label>
-        <input type="text" id="telefono_persona_responsable" name="telefono_persona_responsable" required>
-    </div>
-
-    <!-- Botón para enviar el formulario -->
-    <button type="submit">Dar de alta paciente</button>
-</form>
-
+        <button type="submit">Dar de Alta Paciente</button>
+    </form>
+    <a href="{{ route('secretario.ver-pacientes') }}">Volver</a>
+</body>
+</html>
