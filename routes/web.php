@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SecretarioController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\FichaMedicaController;
+use App\Http\Controllers\ProfesionalController;
 
 
 Route::get('/', function () {
@@ -24,4 +25,8 @@ Route::prefix('secretario')->group(function () {
     Route::get('ver-pacientes', [FichaMedicaController::class, 'verPacientes'])->name('secretario.ver-pacientes');
     Route::get('editar-ficha/{id}', [FichaMedicaController::class, 'editarFicha'])->name('secretario.editar-ficha');
     Route::put('actualizar-ficha/{id}', [FichaMedicaController::class, 'actualizarFicha'])->name('secretario.actualizar-ficha');
+});
+
+Route::prefix('profesional')->group(function () {
+    Route::get('/', [ProfesionalController::class, 'index']);
 });

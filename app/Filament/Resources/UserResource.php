@@ -48,9 +48,13 @@ class UserResource extends Resource
                 Forms\Components\DateTimePicker::make('fecha_nac'),
                 Forms\Components\TextInput::make('domicilio')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('id_tipo') 
-                    ->numeric(),
-                    Forms\Components\Select::make('sucursales')
+                Forms\Components\Select::make('id_tipo')
+                    ->label('Tipo de Persona')
+                    ->relationship('tipoPersona', 'tipo')
+                    ->required()
+                    ->preload()
+                    ->placeholder('Seleccione un tipo'),
+                Forms\Components\Select::make('sucursales')
                     ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
                     ->label('Sucursal'),
                 Forms\Components\TextInput::make('nombre_usuario')
