@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\FichaMedica;
 
 class SecretarioController extends Controller
 {
@@ -11,7 +12,6 @@ class SecretarioController extends Controller
     {
         return view('secretario.index');
     }
-
 
     public function modificarTurnos()
     {

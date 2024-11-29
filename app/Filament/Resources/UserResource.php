@@ -53,7 +53,7 @@ class UserResource extends Resource
                     Forms\Components\Select::make('sucursales')
                     ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
                     ->label('Sucursal'),
-                Forms\Components\TextInput::make('nobre_usuario')
+                Forms\Components\TextInput::make('nombre_usuario')
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
                     ->multiple()
@@ -105,7 +105,7 @@ class UserResource extends Resource
                     Tables\Columns\TextColumn::make('sucursales.nombre') // Accede a la relación y a la propiedad
                     ->label('Sucursal')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('nobre_usuario')
+                Tables\Columns\TextColumn::make('nombre_usuario')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),

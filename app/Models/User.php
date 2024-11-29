@@ -27,7 +27,7 @@ class User extends Authenticatable
     'id_rol', 
     'id_tipo', 
     'id_sucursal', 
-    'nobre_usuario', 
+    'nombre_usuario', 
     'email', 
     'password'];
 
