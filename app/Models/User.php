@@ -56,6 +56,11 @@ class User extends Authenticatable
     return $this->belongsToMany(Rol::class, 'usuario_rol', 'id_usuario', 'id_rol');
     }
 
+    public function tipoPersona()
+    {
+        return $this->belongsTo(TipoPersona::class, 'id_tipo');
+    }
+
     public function save(array $options = [])
     {
         $this->validateRoles();
