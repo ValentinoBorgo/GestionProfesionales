@@ -5,7 +5,7 @@ use App\Http\Controllers\SecretarioController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\FichaMedicaController;
 use App\Http\Controllers\ProfesionalController;
-
+use App\Http\Controllers\TurnoController;
 
 Route::get('/', function () {
     return redirect('dashboard/login');
@@ -14,8 +14,10 @@ Route::get('/', function () {
 
 Route::prefix('secretario')->group(function () {
     Route::get('/', [SecretarioController::class, 'index']);
-    Route::get('modificar-turnos', [SecretarioController::class, 'modificarTurnos']);
-    Route::get('agendar-turnos', [SecretarioController::class, 'agendarTurnos']);
+    Route::get('modificar-turnos', [SecretarioController::class, 'modificarTurnos'])->name('secretario.modificar-turnos');
+    Route::get('turnos', [TurnoController::class, 'turnos'])->name('secretario.turnos');
+    Route::post('turnos', [TurnoController::class, 'storeTurno'])->name('secretario.turnos.store');
+
 
 
     Route::get('dar-alta-paciente', [PacienteController::class, 'create'])->name('pacientes.create');
@@ -30,3 +32,4 @@ Route::prefix('secretario')->group(function () {
 Route::prefix('profesional')->group(function () {
     Route::get('/', [ProfesionalController::class, 'index']);
 });
+
