@@ -8,7 +8,7 @@
     <ul>
         <li><a href="{{ url('secretario/ver-pacientes') }}">Ver Pacientes</a></li>
         <li><a href="{{ url('secretario/modificar-turnos') }}">Modificar Turnos</a></li>
-        <li><a href="{{ url('secretario/agendar-turnos') }}">Agendar Turnos</a></li>
+        <li><a href="{{ url('secretario/turnos') }}">Agendar Turnos</a></li>
     </ul>
 </body>
 </html>
