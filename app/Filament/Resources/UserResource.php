@@ -19,6 +19,12 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationLabel = 'Usuarios';
+
+    protected static ?string $pluralLabel = 'Usuarios';
+
+   protected static ?string $label = 'Usuario';
+
     public static function form(Form $form): Form
     {
         return $form    
@@ -53,7 +59,41 @@ class UserResource extends Resource
                     ->relationship('tipoPersona', 'tipo')
                     ->required()
                     ->preload()
-                    ->placeholder('Seleccione un tipo'),
+                    ->placeholder('Seleccione un tipo')
+                    ->reactive(),
+                Forms\Components\TextInput::make('titulo')
+                    ->label('Título')
+                    ->maxLength(255)
+                    ->visible(function (callable $get) {
+                        $tipoSeleccionado = $get('id_tipo');
+                        
+                        if (!$tipoSeleccionado) {
+                            return false;
+                        }
+                        $tipoPersona = \App\Models\TipoPersona::find($tipoSeleccionado);
+                        return $tipoPersona && $tipoPersona->tipo === 'PROFESIONAL';
+                    })
+                    ->required(function (callable $get) {
+                        $tipoSeleccionado = $get('id_tipo');
+                        if (!$tipoSeleccionado) {
+                            return false;
+                        }
+                        $tipoPersona = \App\Models\TipoPersona::find($tipoSeleccionado);
+                        return $tipoPersona && $tipoPersona->tipo === 'PROFESIONAL';
+                    })
+                    ->afterStateHydrated(function ($state, callable $set, $get, $livewire) {
+                        // Sólo intentamos cargar el título si estamos en la página de edición y existe el registro
+                        if ($livewire instanceof \App\Filament\Resources\UserResource\Pages\EditUser && $livewire->record) {
+                            // Verificar el valor de la relación profesional
+                            $profesional = $livewire->record->profesional;
+                            // Puedes usar \Log::info() para debug si lo necesitas
+                            // \Log::info('Debug Profesional', ['profesional' => $profesional]);
+
+                            if ($profesional) {
+                                $set('titulo', $profesional->titulo);
+                            }
+                        }
+                    }),            
                 Forms\Components\Select::make('sucursales')
                     ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
                     ->label('Sucursal'),
@@ -106,7 +146,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('domicilio'),
                 Tables\Columns\TextColumn::make('id_tipo')
                     ->searchable(),
-                    Tables\Columns\TextColumn::make('sucursales.nombre') // Accede a la relación y a la propiedad
+                Tables\Columns\TextColumn::make('sucursales.nombre') // Accede a la relación y a la propiedad
                     ->label('Sucursal')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nombre_usuario')
@@ -150,6 +190,12 @@ class UserResource extends Resource
             // Puedes añadir relaciones aquí si es necesario
         ];
     }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->with('profesional');
+    }
+
 
     public static function getPages(): array
     {

@@ -29,6 +29,14 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+
+        DB::table('users')->insert([
+            'name' => 'vale',
+            'email' => 'vale@gmail.com',
+            'password' => Hash::make('vale'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**

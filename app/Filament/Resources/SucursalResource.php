@@ -19,9 +19,9 @@ class SucursalResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Sucursal';
+    protected static ?string $navigationLabel = 'Sucursales';
 
-    protected static ?string $pluralLabel = 'Sucursals';
+    protected static ?string $pluralLabel = 'Sucursales';
 
    protected static ?string $label = 'Sucursal';
 
