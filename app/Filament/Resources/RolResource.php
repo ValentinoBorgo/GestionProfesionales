@@ -19,9 +19,9 @@ class RolResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Rol';
+    protected static ?string $navigationLabel = 'Roles';
 
-     protected static ?string $pluralLabel = 'Rols';
+     protected static ?string $pluralLabel = 'Roles';
 
     protected static ?string $label = 'Rol';
 

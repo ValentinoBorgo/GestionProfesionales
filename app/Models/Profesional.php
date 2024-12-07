@@ -13,14 +13,12 @@ class Profesional extends Model
     protected $table = 'profesional';
 
     protected $fillable = [
-        'ocupacion',
-        'fecha_baja',
-        'id',
-        'id_usuario',
+        'titulo',
+        'id_persona',
     ];
 
     public function persona()
     {
-        return $this->belongsTo(User::class, 'id');
+        return $this->belongsTo(User::class, 'id_persona');
     }
 }

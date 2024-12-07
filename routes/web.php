@@ -29,7 +29,7 @@ Route::prefix('secretario')->group(function () {
     Route::put('actualizar-ficha/{id}', [FichaMedicaController::class, 'actualizarFicha'])->name('secretario.actualizar-ficha');
 });
 
-Route::prefix('profesional')->group(function () {
-    Route::get('/', [ProfesionalController::class, 'index']);
-});
+// Route::prefix('profesional')->group(function () {
+//     Route::get('/', [ProfesionalController::class, 'index']);
+// });
 
