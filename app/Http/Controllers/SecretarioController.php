@@ -22,5 +22,6 @@ class SecretarioController extends Controller
     {
         return view('secretario.agendar-turnos');
     }
+    
 }
 

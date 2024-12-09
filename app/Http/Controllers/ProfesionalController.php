@@ -16,7 +16,7 @@ class ProfesionalController extends Controller
     {
         return view('profesional.modificar');
     }
-
+    
     // public function agendarTurnos()
     // {
     //     return view('profesional.agendar-turnos');

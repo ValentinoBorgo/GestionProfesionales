@@ -48,7 +48,7 @@ class User extends Authenticatable
 
     public function profesional()
     {
-    return $this->hasOne(Profesional::class, 'id_persona');
+    return $this->hasOne(Profesional::class, 'id_usuario');
     }
 
     public function roles()
@@ -59,6 +59,10 @@ class User extends Authenticatable
     public function tipoPersona()
     {
         return $this->belongsTo(TipoPersona::class, 'id_tipo');
+    }
+    public function ausencias()
+    {
+        return $this->hasMany(Ausencias::class, 'id_usuario');
     }
 
     public function save(array $options = [])
