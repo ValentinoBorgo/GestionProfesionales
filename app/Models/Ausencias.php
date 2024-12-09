@@ -5,17 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Secretario extends Model
+
+class Ausencias extends Model
 {
     use HasFactory;
-
-    protected $table = 'secretario';
-
-    protected $fillable = [
-        'fecha_baja',
-        'id',
-        'id_usuario',
-    ];
+    
+    protected $fillable = ['motivo', 'fecha_inicio', 'fecha_fin','id_usuario'];
 
     public function usuario()
     {
