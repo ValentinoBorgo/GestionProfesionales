@@ -26,7 +26,6 @@ class User extends Authenticatable
     'domicilio', 
     'id_rol', 
     'id_tipo', 
-    'id_sucursal', 
     'nombre_usuario', 
     'email', 
     'password'];
@@ -48,7 +47,7 @@ class User extends Authenticatable
 
     public function profesional()
     {
-    return $this->hasOne(Profesional::class, 'id_usuario');
+    return $this->hasOne(Profesional::class, 'id_persona');
     }
 
     public function roles()

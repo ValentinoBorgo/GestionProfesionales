@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SucursalUsuario extends Model
 {
-
+    protected $table = 'sucursal_usuario';
     protected $fillable = ['id_usuario', 'id_sucursal'];
 
     public function usuario()
@@ -19,16 +19,5 @@ class SucursalUsuario extends Model
         return $this->belongsTo(Sucursal::class, 'id_sucursal');
     }
 
-    public static function afterSave($record)
-    {
-    
-    $sucursalId = $record->id_sucursal;
-
-    SucursalUsuario::updateOrCreate(
-        ['id_usuario' => $record->id, 'id_sucursal' => $sucursalId],
-        ['id_usuario' => $record->id, 'id_sucursal' => $sucursalId]
-    );
 }   
-
-}
 
