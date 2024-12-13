@@ -13,7 +13,11 @@ class Turno extends Model
         'id_paciente', 
         'id_secretario', 
         'id_tipo_turno', 
-        'id_estado'
+        'id_estado',
+        'id_sala'
+    ];
+    protected $casts = [
+        'hora_fecha' => 'datetime', // Esto asegura que 'hora_fecha' sea un objeto Carbon
     ];
 
     public function profesional()
@@ -39,5 +43,10 @@ class Turno extends Model
     public function estado()
     {
         return $this->belongsTo(EstadoTurno::class, 'id_estado');
+    }
+
+    public function sala()
+    {
+        return $this->belongsTo(Salas::class, 'id_sala');
     }
 }

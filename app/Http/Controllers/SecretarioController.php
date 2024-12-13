@@ -5,23 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\FichaMedica;
+use App\Models\Turno;
 
 class SecretarioController extends Controller
 {
     public function index()
-    {
-        return view('secretario.index');
-    }
+{
+    $hoy = now()->startOfDay(); 
+    $manana = now()->endOfDay(); 
 
-    public function modificarTurnos()
-    {
-        return view('secretario.modificar-turnos');
-    }
+    $turnosHoy = Turno::with([
+        'secretario',
+        'profesional',
+        'paciente.fichaMedica',
+        'tipoTurno',
+        'estado',
+        'sala.sucursal',
+    ])->whereBetween('hora_fecha', [$hoy, $manana])->get();
 
-    public function agendarTurnos()
-    {
-        return view('secretario.agendar-turnos');
-    }
-    
+    return view('secretario.index', compact('turnosHoy'));
+}    
 }
 

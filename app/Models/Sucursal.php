@@ -19,13 +19,18 @@ class Sucursal extends Model
     'razon_social', 
     'codigo_postal', 
     'telefono', 
-    'horarios', 
+    'horario_apertura',
+    'horario_cierre',
     ];
 
     public function users()
-{
+    {
     return $this->belongsToMany(User::class, 'sucursal_usuario', 'id_sucursal', 'id_usuario');
-}
+    }
+    public function salas()
+    {
+        return $this->hasMany(Salas::class, 'id_sucursal');
+    }
 
 }
 
