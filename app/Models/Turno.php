@@ -16,6 +16,9 @@ class Turno extends Model
         'id_estado',
         'id_sala'
     ];
+    protected $casts = [
+        'hora_fecha' => 'datetime', // Esto asegura que 'hora_fecha' sea un objeto Carbon
+    ];
 
     public function profesional()
     {

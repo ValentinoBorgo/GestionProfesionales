@@ -48,5 +48,6 @@
         </tbody>
     </table>
     <a href="{{ route('pacientes.create') }}">Dar de Alta Paciente</a>
+    <a href="{{ url('secretario') }}">Volver</a>
 </body>
 </html>

@@ -21,7 +21,8 @@ return new class extends Migration
             $table->string('razon_social')->nullable();
             $table->string('codigo_postal')->nullable();
             $table->bigInteger('telefono')->nullable();
-            $table->string('horarios')->nullable();
+            $table->time('horario_apertura')->nullable();
+            $table->time('horario_cierre')->nullable();
         });
 
         DB::table('sucursal')->insert([

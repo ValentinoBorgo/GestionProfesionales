@@ -47,6 +47,39 @@
             'turnos'
         ));
     }
+    public function verTurnos()
+        {
+
+            $secretarios = User::where('id_tipo', 2)->get();
+
+            $profesionales = User::where('id_tipo', 3)->get();
+
+            $pacientes = Paciente::with(['fichaMedica' => function ($query) {
+                $query->select('id', 'nombre', 'apellido');
+            }])->get();
+
+        $tipoTurnos = TipoTurno::all();
+
+        $estadoTurnos = EstadoTurno::all();
+
+        // Obtener todos los turnos para mostrar en la tabla
+        $turnos = Turno::with([
+            'secretario',
+            'profesional',
+            'paciente.fichaMedica',
+            'tipoTurno',
+            'estado'
+        ])->get();
+
+        return view('secretario.ver-turnos', compact(
+            'secretarios',
+            'profesionales',
+            'pacientes',
+            'tipoTurnos',
+            'estadoTurnos',
+            'turnos'
+        ));
+    }
     public function storeTurno(Request $request)
     {
         $validatedData = $this->validarTurno($request);
@@ -239,5 +272,55 @@
     ])->whereBetween('hora_fecha', [$hoy, $manana])->get();
 
     return view('secretario.index', compact('turnosHoy'));
+}
+public function editarTurno($id)
+{
+    $turno = Turno::findOrFail($id);
+
+    $secretarios = User::where('id_tipo', 2)->get();
+    $profesionales = User::where('id_tipo', 3)->get();
+    $pacientes = Paciente::with(['fichaMedica' => function ($query) {
+        $query->select('id', 'nombre', 'apellido');
+    }])->get();
+    $tipoTurnos = TipoTurno::all();
+    $estadoTurnos = EstadoTurno::all();
+
+    return view('secretario.modificar-turno', compact(
+        'turno',
+        'secretarios',
+        'profesionales',
+        'pacientes',
+        'tipoTurnos',
+        'estadoTurnos'
+    ));
+}
+
+public function actualizarTurno(Request $request, $id)
+{
+    $validatedData = $this->validarTurno($request);
+
+    $turno = Turno::findOrFail($id);
+
+    $horaFecha = new \DateTime($validatedData['hora_fecha']);
+    $this->validarFechaHora($horaFecha);
+    $this->disponibilidadProfesional($validatedData['id_profesional'], $horaFecha, $id);
+    $this->ausenciaProfesional($validatedData['id_profesional'], $horaFecha);
+
+    $secretario = $this->getSecretario(auth()->user());
+    $this->validarHorarioSucursal($horaFecha, $secretario);
+
+    $salaDisponible = $this->getSalaDisponible($horaFecha, $validatedData['id_tipo_turno'], $secretario);
+
+    // Actualizar los datos del turno
+    $turno->update([
+        'hora_fecha' => $validatedData['hora_fecha'],
+        'id_profesional' => $validatedData['id_profesional'],
+        'id_paciente' => $validatedData['id_paciente'],
+        'id_tipo_turno' => $validatedData['id_tipo_turno'],
+        'id_estado' => $validatedData['id_estado'],
+        'id_sala' => $salaDisponible->id,
+    ]);
+
+    return redirect()->route('secretario.ver-turnos')->with('success', 'Turno actualizado exitosamente');
 }
     }
