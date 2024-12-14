@@ -6,6 +6,7 @@
     use App\Http\Controllers\FichaMedicaController;
     use App\Http\Controllers\ProfesionalController;
     use App\Http\Controllers\TurnoController;
+    use App\Http\Controllers\MailController;
 
     Route::get('/', function () {
         return redirect('dashboard/login');
@@ -29,7 +30,7 @@
         Route::get('editar-ficha/{id}', [FichaMedicaController::class, 'editarFicha'])->name('secretario.editar-ficha');
         Route::put('actualizar-ficha/{id}', [FichaMedicaController::class, 'actualizarFicha'])->name('secretario.actualizar-ficha');
     });
-    
+    Route::get('/enviar-correo', [MailController::class, 'enviarCorreo']);
     // rutas de busqueda
     Route::get('/secretarios/search', [SecretarioController::class, 'search'])->name('secretarios.search');
     Route::get('/profesionales/search', [ProfesionalController::class, 'search'])->name('profesionales.search');
