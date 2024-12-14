@@ -6,6 +6,8 @@
     use App\Http\Controllers\FichaMedicaController;
     use App\Http\Controllers\ProfesionalController;
     use App\Http\Controllers\TurnoController;
+    use App\Http\Controllers\AgendaController;
+
 
     Route::get('/', function () {
         return redirect('dashboard/login');
@@ -35,6 +37,8 @@
     Route::get('/profesionales/search', [ProfesionalController::class, 'search'])->name('profesionales.search');
     Route::get('/pacientes/search', [PacienteController::class, 'search'])->name('pacientes.search');
 
+    // Route::get('/pacientes/index', [AgendaController::class, 'index'])->name('agenda.index');
+    // Route::get('/profesionales/agenda', [AgendaController::class, 'index'])->name('agenda.index');
 
 // Route::prefix('profesional')->group(function () {
 //     Route::get('/', [ProfesionalController::class, 'index']);

@@ -17,6 +17,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\Agenda;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -40,20 +41,17 @@ class DashboardPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
-            // ->navigationItems([
-            //     [
-            //         'label' => 'Agenda',
-            //         'url' => route('dashboard'), // Ruta interna
-            //         'icon' => 'heroicon-o-home',
-            //         'group' => null,
-            //     ],
-            //     [
-            //         'label' => 'Pacientes',
-            //         'url' => route('dashboard'), 
-            //         'icon' => 'heroicon-o-book-open',
-            //         'group' => null,
-            //     ],
-            // ])
+            ->navigationItems([
+                \Filament\Navigation\NavigationItem::make('Agenda')
+                    ->url('/dashboard/agenda')
+                    ->icon('heroicon-o-book-open')
+                    ->group(null),
+            
+                \Filament\Navigation\NavigationItem::make('Pacientes')
+                    // ->url(route('/dashboard')) // Define la URL aquí
+                    ->icon('heroicon-o-user-group')
+                    ->group(null),
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
