@@ -40,6 +40,20 @@ class DashboardPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
+            // ->navigationItems([
+            //     [
+            //         'label' => 'Agenda',
+            //         'url' => route('dashboard'), // Ruta interna
+            //         'icon' => 'heroicon-o-home',
+            //         'group' => null,
+            //     ],
+            //     [
+            //         'label' => 'Pacientes',
+            //         'url' => route('dashboard'), 
+            //         'icon' => 'heroicon-o-book-open',
+            //         'group' => null,
+            //     ],
+            // ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
