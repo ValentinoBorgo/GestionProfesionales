@@ -17,6 +17,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Pages\Agenda;
+use App\Filament\Pages\Pacientes;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -39,6 +41,15 @@ class DashboardPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
+            ])
+            ->navigationItems([
+                \Filament\Navigation\NavigationItem::make('Agenda')
+                    ->url('/dashboard/agenda')
+                    ->group(null),
+            
+                \Filament\Navigation\NavigationItem::make('Pacientes')
+                    ->url('/dashboard/pacientes')
+                    ->group(null),
             ])
             ->middleware([
                 EncryptCookies::class,

@@ -7,6 +7,10 @@
     use App\Http\Controllers\ProfesionalController;
     use App\Http\Controllers\TurnoController;
     use App\Http\Controllers\MailController;
+    use App\Http\Controllers\AgendaController;
+    use App\Filament\Pages\DetalleFichaMedica;
+    use App\Filament\Pages\Pacientes;
+
 
     Route::get('/', function () {
         return redirect('dashboard/login');
@@ -36,8 +40,6 @@
     Route::get('/profesionales/search', [ProfesionalController::class, 'search'])->name('profesionales.search');
     Route::get('/pacientes/search', [PacienteController::class, 'search'])->name('pacientes.search');
 
-
-// Route::prefix('profesional')->group(function () {
-//     Route::get('/', [ProfesionalController::class, 'index']);
-// });
-
+    Route::get('/detalle-ficha/{id}', DetalleFichaMedica::class)->name('fichaMedica.show');
+    Route::get('/pacientes', Pacientes::class)->name('pacientes.index');
+    Route::get('/turno/cancelar/{id}', [TurnoController::class, 'cancelarTurno'])->name('turno.cancelarTurno');
