@@ -19,9 +19,7 @@ return new class extends Migration
             $table->integer('edad')->nullable();
             $table->datetime('fecha_nac')->nullable();
             $table->string('domicilio')->nullable();
-            $table->integer('id_rol')->nullable();
             $table->integer('id_tipo')->nullable();
-            $table->integer('id_sucursal')->nullable();
             $table->string('nombre_usuario')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();

@@ -12,6 +12,12 @@ class Pacientes extends Page
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->profesional ? true : false;
+    }
+
     public $fichasMedicas;
 
     public function mount()

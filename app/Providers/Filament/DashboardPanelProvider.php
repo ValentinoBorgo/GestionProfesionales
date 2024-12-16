@@ -17,13 +17,27 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\Pages\Agenda;
-use App\Filament\Pages\Pacientes;
 
 class DashboardPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // Verificar si el usuario tiene un profesional asociado
+        $isProfessional = auth()->check() && auth()->user()->profesional;
+
+        // Construir manualmente los elementos de navegación
+        $navigationItems = [];
+
+        if ($isProfessional) {
+            $navigationItems[] = \Filament\Navigation\NavigationItem::make('Agenda')
+                ->url('/dashboard/agenda')
+                ->group(null);
+
+            $navigationItems[] = \Filament\Navigation\NavigationItem::make('Pacientes')
+                ->url('/dashboard/pacientes')
+                ->group(null);
+        }
+
         return $panel
             ->default()
             ->id('dashboard')
@@ -42,15 +56,7 @@ class DashboardPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
-            ->navigationItems([
-                \Filament\Navigation\NavigationItem::make('Agenda')
-                    ->url('/dashboard/agenda')
-                    ->group(null),
-            
-                \Filament\Navigation\NavigationItem::make('Pacientes')
-                    ->url('/dashboard/pacientes')
-                    ->group(null),
-            ])
+            ->navigationItems($navigationItems) // Usar la lista construida
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
