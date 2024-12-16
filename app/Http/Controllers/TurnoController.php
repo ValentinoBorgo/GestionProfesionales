@@ -323,4 +323,23 @@ public function actualizarTurno(Request $request, $id)
 
     return redirect()->route('secretario.ver-turnos')->with('success', 'Turno actualizado exitosamente');
 }
+
+public function cancelarTurno($id)
+{
+    $turno = Turno::findOrFail($id); // Encuentra el turno por ID
+
+    // Cambia el estado del turno a "Cancelado"
+    $estadoCancelado = EstadoTurno::where('codigo', 'CANCELADO_PROFESIONAL')->first();
+
+    if (!$estadoCancelado) {
+        return redirect()->back()->with('error', 'No se encontró el estado "Cancelado".');
     }
+
+    $turno->update([
+        'id_estado' => $estadoCancelado->id,
+    ]);
+
+    return redirect()->back()->with('success', 'Turno cancelado exitosamente.');
+}
+
+}

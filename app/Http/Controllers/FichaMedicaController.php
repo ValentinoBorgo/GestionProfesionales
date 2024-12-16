@@ -19,6 +19,12 @@ class FichaMedicaController extends Controller
         return view('secretario.editar-ficha', compact('ficha'));
     }
 
+    public function show($id)
+    {
+        $ficha = FichaMedica::findOrFail($id);  // Encuentra la ficha médica por ID
+        return view('secretario.detalle-ficha-medica', compact('ficha'));  // Devuelve la vista con los detalles
+    }
+
     public function actualizarFicha(Request $request, $id)
     {
         $ficha = FichaMedica::findOrFail($id);

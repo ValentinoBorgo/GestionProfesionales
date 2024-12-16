@@ -18,6 +18,7 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\Pages\Agenda;
+use App\Filament\Pages\Pacientes;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -44,12 +45,10 @@ class DashboardPanelProvider extends PanelProvider
             ->navigationItems([
                 \Filament\Navigation\NavigationItem::make('Agenda')
                     ->url('/dashboard/agenda')
-                    ->icon('heroicon-o-book-open')
                     ->group(null),
             
                 \Filament\Navigation\NavigationItem::make('Pacientes')
-                    // ->url(route('/dashboard')) // Define la URL aquí
-                    ->icon('heroicon-o-user-group')
+                    ->url('/dashboard/pacientes')
                     ->group(null),
             ])
             ->middleware([

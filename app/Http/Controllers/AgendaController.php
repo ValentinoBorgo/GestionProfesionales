@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Turno;
+use Illuminate\Support\Facades\Log;
 
 class AgendaController extends Controller
 {
@@ -14,8 +15,9 @@ class AgendaController extends Controller
             ->where('id_profesional', auth()->id()) // Filtra por el profesional autenticado
             ->orderBy('hora_fecha', 'asc') // Ordena por hora
             ->get();
+            dd($turnos);
 
-        return view('profesionales.agenda', compact('turnos'));
+        return view('filament.pages.agenda', compact('turnos'));
     }
 }
 
