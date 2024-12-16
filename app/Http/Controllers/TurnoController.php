@@ -224,5 +224,25 @@ class TurnoController extends Controller
 
         return redirect()->back()->with('success', 'Turno cancelado exitosamente.');
     }
+    public function verTurnosProfesional()
+    {
+    $hoy = now()->startOfDay();
+    $manana = now()->endOfDay();
 
-}
+    $profesionalId = auth()->user()->profesional->id;
+
+    $turnosHoy = Turno::with([
+        'secretario.usuario',
+        'paciente.fichaMedica',
+        'tipoTurno',
+        'estado',
+        'sala.sucursal',
+    ])
+    ->where('id_profesional', $profesionalId)
+    ->whereBetween('hora_fecha', [$hoy, $manana])
+    ->get();
+
+    return view('profesional.index', compact('turnosHoy'));
+    }
+    }
+
