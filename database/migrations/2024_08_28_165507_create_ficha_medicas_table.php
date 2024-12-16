@@ -16,6 +16,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('nombre')->nullable();
             $table->string('apellido')->nullable();
+            $table->string('email')->unique();
             $table->string('edad')->nullable();
             $table->string('fecha_nac')->nullable();
             $table->string('ocupacion')->nullable();

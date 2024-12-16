@@ -11,6 +11,7 @@
                         <th>Estado</th>
                         <th>Sala</th>
                         <th>Sucursal</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>

@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-    <h1>Recordatorio para {{ $nombre }} de {{ $sucursal }}</h1>
+    <h1>Recordatorio para {{ $nombre }} </h1>
     <p>Este es un recordatorio de que tienes turno para el {{ $fecha_hora }}. Por favor, no responder este mensaje.</p>
 </body>
 </html>

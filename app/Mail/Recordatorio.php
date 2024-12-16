@@ -21,10 +21,9 @@ class Recordatorio extends Mailable
      * @param string $sucursal
      * @param string $fecha_hora
      */
-    public function __construct($nombre, $sucursal, $fecha_hora)
+    public function __construct($nombre, $fecha_hora)
     {
         $this->nombre = $nombre;
-        $this->sucursal = $sucursal;
         $this->fecha_hora = $fecha_hora;
     }
 

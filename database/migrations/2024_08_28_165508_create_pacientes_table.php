@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('paciente', function (Blueprint $table) {
             $table->id(); // Esto crea la columna 'id' como clave primaria autoincremental
             $table->string('fecha_alta')->nullable();
+            $table->string('email')->unique();
             $table->timestamps();
 
             $table->foreignId('id_ficha_medica')->nullable()->constrained('ficha_medica')->onDelete('cascade');

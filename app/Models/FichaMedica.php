@@ -15,6 +15,7 @@ class FichaMedica extends Model
         'id',
         'nombre',
         'apellido',
+        'email',
         'edad',
         'fecha_nac',
         'ocupacion',
