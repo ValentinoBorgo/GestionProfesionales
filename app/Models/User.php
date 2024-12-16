@@ -24,7 +24,6 @@ class User extends Authenticatable
     'edad', 
     'fecha_nac', 
     'domicilio', 
-    'id_rol', 
     'id_tipo', 
     'nombre_usuario', 
     'email', 

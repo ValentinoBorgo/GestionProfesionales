@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -20,6 +21,31 @@ return new class extends Migration
 
             $table->foreign('id_sucursal')->references('id')->on('sucursal')->onDelete('cascade');
         });
+
+           // Insertar datos de prueba
+    DB::table('salas')->insert([
+        [
+            'nombre' => 'Sala de Consulta 1',
+            'tipo' => 'Consulta',
+            'id_sucursal' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'nombre' => 'Sala de Cirugía 1',
+            'tipo' => 'Cirugía',
+            'id_sucursal' => 1,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+        [
+            'nombre' => 'Sala de Rehabilitación 1',
+            'tipo' => 'Rehabilitación',
+            'id_sucursal' => 2,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ],
+    ]);
     }
 
     /**

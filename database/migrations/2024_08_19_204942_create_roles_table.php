@@ -25,10 +25,15 @@ return new class extends Migration
                 'updated_at' => now()
             ],
             [
-                'nombre' => 'ROLE_USER',
+                'nombre' => 'ROLE_SECRETARIO',
                 'created_at' => now(),
                 'updated_at' => now()
             ],
+            [
+                'nombre' => 'ROLE_PROFESIONAL',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
         ]);
     }
 

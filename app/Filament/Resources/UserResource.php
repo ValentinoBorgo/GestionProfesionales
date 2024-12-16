@@ -96,7 +96,9 @@ class UserResource extends Resource
                     }),            
                 Forms\Components\Select::make('sucursales')
                     ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
-                    ->label('Sucursal'),
+                    ->label('Sucursal')
+                    ->preload()
+                    ->multiple(),
                 Forms\Components\TextInput::make('nombre_usuario')
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
@@ -104,6 +106,7 @@ class UserResource extends Resource
                     ->relationship('roles', 'nombre')
                     ->label('Rol')
                     ->preload()
+                    ->multiple()
                     ->required(),
                 Forms\Components\DateTimePicker::make('email_verified_at'),
                 Forms\Components\Toggle::make('editar_password')
