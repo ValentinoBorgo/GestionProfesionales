@@ -34,7 +34,19 @@
         Route::get('editar-ficha/{id}', [FichaMedicaController::class, 'editarFicha'])->name('secretario.editar-ficha');
         Route::put('actualizar-ficha/{id}', [FichaMedicaController::class, 'actualizarFicha'])->name('secretario.actualizar-ficha');
     });
+
+    // mail/recordatorio
     Route::get('/enviar-correo', [MailController::class, 'enviarCorreo']);
+
+
+    //profesional
+    Route::prefix('profesional')->middleware('role:3')->group(function () {
+        Route::get('/', [TurnoController::class, 'verTurnosProfesional'])->name('profesional.turnos');
+        Route::get('/mis-pacientes', [PacienteController::class, 'verTurnosProfesional'])->name('profesional.turnos');
+        Route::get('/ver-mis-turnos', [TurnoController::class, 'verTurnosProfesional'])->name('profesional.turnos');
+        Route::get('/modificar-turno', [TurnoController::class, 'verTurnosProfesional'])->name('profesional.turnos');
+        Route::get('/editar-ficha-mi-paciente/{id}', [FichaMedicaController::class, 'verTurnosProfesional'])->name('profesional.turnos');
+    });
     // rutas de busqueda
     Route::get('/secretarios/search', [SecretarioController::class, 'search'])->name('secretarios.search');
     Route::get('/profesionales/search', [ProfesionalController::class, 'search'])->name('profesionales.search');
