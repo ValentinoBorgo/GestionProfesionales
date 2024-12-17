@@ -33,24 +33,20 @@ class TurnoService
     public function validarHorarioSucursal(\DateTime $horaFecha, $secretario)
     {
         $horaTurno = $horaFecha->format('H:i:s');
-
-        $sucursalesUsuario = \DB::table('sucursal_usuario')
-            ->where('id_usuario', $secretario->id_usuario)
-            ->pluck('id_sucursal');
-
+        $sucursalesUsuario = $secretario->sucursales;
         if ($sucursalesUsuario->isEmpty()) {
             throw ValidationException::withMessages([
                 'error' => 'El usuario no tiene sucursales asignadas.',
             ]);
         }
-
-        $horarioValido = \DB::table('sucursal')
-            ->whereIn('id', $sucursalesUsuario)
-            ->where('horario_apertura', '<=', $horaTurno)
-            ->where('horario_cierre', '>=', $horaTurno)
-            ->exists();
-
-        if (!$horarioValido) {
+        $horariosFiltrados = $sucursalesUsuario->filter(function ($sucursal) use ($horaTurno) {
+            return $sucursal->horario_apertura <= $horaTurno && $sucursal->horario_cierre >= $horaTurno;
+        });
+        
+        
+        dd($horariosFiltrados); // Esto devolverá true o null
+        
+        if ($resultado === null) {
             throw ValidationException::withMessages([
                 'hora_fecha' => 'El turno debe estar dentro del horario de apertura y cierre de las sucursales disponibles.',
             ]);
