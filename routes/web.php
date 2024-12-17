@@ -11,7 +11,7 @@
     use App\Filament\Pages\DetalleFichaMedica;
     use App\Filament\Pages\Pacientes;
     use App\Filament\Pages\EditarFichaMedica;
-
+    use App\Filament\Pages\VerTurnos;
 
     Route::get('/', function () {
         return redirect('dashboard/login');
@@ -24,17 +24,14 @@
         Route::get('/', [SecretarioController::class, 'index']);
         Route::get('turnos', [TurnoController::class, 'turnos'])->name('secretario.turnos');
         Route::post('turnos', [TurnoController::class, 'storeTurno'])->name('secretario.turnos.store');
-        Route::get('ver-turnos', [TurnoController::class, 'verTurnos'])->name('secretario.ver-turnos');
         
-        Route::get('dar-alta-paciente', [PacienteController::class, 'create'])->name('pacientes.create');
-        Route::post('dar-alta-paciente', [PacienteController::class, 'store'])->name('pacientes.store');
         Route::get('modificar-turno/{id}', [TurnoController::class, 'editarTurno'])->name('secretario.modificar-turno');
         Route::put('modificar-turno/{id}', [TurnoController::class, 'actualizarTurno'])->name('secretario.actualizar-turno');
         //ficha medica 
         Route::get('ver-pacientes', [FichaMedicaController::class, 'verPacientes'])->name('secretario.ver-pacientes');
         Route::put('actualizar-ficha/{id}', [FichaMedicaController::class, 'actualizarFicha'])->name('secretario.actualizar-ficha');
     });
-
+    Route::get('/ver-turnos', VerTurnos::class)->name('filament.ver-turnos');
     Route::get('/editar-ficha/{id}', EditarFichaMedica::class)->name('filament.editar-ficha');
 
     // mail/recordatorio
