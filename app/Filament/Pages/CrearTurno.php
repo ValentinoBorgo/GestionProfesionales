@@ -82,14 +82,13 @@ public function __construct()
         // Obtener la fecha y hora del turno
         $horaFecha = new \DateTime($data['hora_fecha']);
         $secretario = Auth::user();
-
+  
         // Validar fecha y hora
         try {
             $this->turnoService->validarFechaHora($horaFecha);
             $this->turnoService->disponibilidadProfesional($data['id_profesional'], $horaFecha, $data['id_profesional']);
             $this->turnoService->ausenciaProfesional($data['id_profesional'], $horaFecha, $data['id_profesional']);
 
-            $secretario = Auth::user();
             if (!$secretario->secretario) {
             // Si el usuario no tiene un secretario asociado, muestra un error o maneja la situación.
                 $this->addError('id_secretario', 'El usuario no tiene un secretario asociado.');
@@ -104,7 +103,6 @@ public function __construct()
             $this->addError('hora_fecha', $e->getMessage());
             return;
         }
-
         // Crear el turno
         $turno = Turno::create([
             'hora_fecha' => $data['hora_fecha'],

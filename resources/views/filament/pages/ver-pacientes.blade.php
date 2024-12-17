@@ -50,6 +50,11 @@
 
     <h1 style="margin-bottom: 1rem;">Listado de Pacientes</h1>
     <!-- Tabla de pacientes -->
+    <div style="margin-bottom: 1rem;">
+    <a href="{{ \App\Filament\Pages\DarAltaPaciente::getUrl() }}" class="btn-gestion">
+    Dar de Alta Paciente
+    </a>
+    </div>
     <h2>Pacientes Registrados</h2>
 
     <div style="overflow-x: auto; width: 100%; margin-top: 1rem;">
