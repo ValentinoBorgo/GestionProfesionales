@@ -26,8 +26,6 @@
         Route::post('turnos', [TurnoController::class, 'storeTurno'])->name('secretario.turnos.store');
         Route::get('ver-turnos', [TurnoController::class, 'verTurnos'])->name('secretario.ver-turnos');
         
-        Route::get('dar-alta-paciente', [PacienteController::class, 'create'])->name('pacientes.create');
-        Route::post('dar-alta-paciente', [PacienteController::class, 'store'])->name('pacientes.store');
         Route::get('modificar-turno/{id}', [TurnoController::class, 'editarTurno'])->name('secretario.modificar-turno');
         Route::put('modificar-turno/{id}', [TurnoController::class, 'actualizarTurno'])->name('secretario.actualizar-turno');
         //ficha medica 
