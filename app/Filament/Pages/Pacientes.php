@@ -19,16 +19,16 @@ class Pacientes extends Page
     }
 
     public $fichasMedicas;
-
     public function mount()
     {
         $profesionalId = auth()->user()->profesional->id;
-
+    
         if ($profesionalId) {
-            $pacienteIds = Turno::where('id_profesional', $profesionalId)
-                ->pluck('id_paciente');
-
-            $this->fichasMedicas = FichaMedica::whereIn('id', $pacienteIds)->get();
+            $turnos = Turno::where('id_profesional', $profesionalId)
+                ->with('paciente')
+                ->get();
+            $pacientes = $turnos->pluck('paciente')->unique();
+            $this->fichasMedicas = FichaMedica::whereIn('id', $pacientes->pluck('id_ficha_medica'))->get();
         } else {
             $this->fichasMedicas = collect();
         }

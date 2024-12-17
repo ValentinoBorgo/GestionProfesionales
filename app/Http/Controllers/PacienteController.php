@@ -20,6 +20,7 @@ class PacienteController extends Controller
         $validatedData = $request->validate([
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
+            'email' => 'required|email',
             'edad' => 'required|string|max:10',
             'fecha_nac' => 'required|date',
             'ocupacion' => 'required|string|max:255',
@@ -28,7 +29,7 @@ class PacienteController extends Controller
             'localidad' => 'required|string|max:255',
             'provincia' => 'required|string|max:255',
             'persona_responsable' => 'required|string|max:255',
-            'vinculo' => 'required|string|max:50',
+            'vinculo' => 'required|string|max:255',
             'dni' => 'required|string|max:20',
             'telefono_persona_responsable' => 'required|string|max:20'
         ]);
@@ -39,7 +40,7 @@ class PacienteController extends Controller
 
         $paciente = Paciente::create([
             'fecha_alta' => Carbon::now(),
-            'id_ficha_medica' => $fichaMedica->id
+            'id_ficha_medica' => $fichaMedica->id,
         ]);
 
         return redirect()->route('secretario.ver-pacientes')

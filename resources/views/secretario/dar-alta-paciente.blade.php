@@ -25,6 +25,9 @@
         <label>Apellido: 
             <input type="text" name="apellido" value="{{ old('apellido') }}" required>
         </label><br>
+        <label>Email: 
+            <input type="email" name="email" value="{{ old('email') }}" required>
+        </label><br>
         <label>Edad: 
             <input type="text" name="edad" value="{{ old('edad') }}" required>
         </label><br>

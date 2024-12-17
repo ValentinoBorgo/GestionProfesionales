@@ -97,11 +97,15 @@
     </table>
 
     <div>
-        <a href="{{ route('secretario.editar-ficha', $ficha->id) }}" class="btn">Editar Ficha Médica</a>
+    <a href="{{ route('filament.editar-ficha', ['id' => $ficha->id]) }}" class="btn">
+        Editar Ficha Médica
+    </a>
     </div>
 
+
     <div>
-        <a href="{{ route('secretario.ver-pacientes') }}" class="back-btn">Volver a la Lista de Pacientes</a>
+        <a href="{{ route('pacientes.index') }}" class="back-btn">Volver a la Lista de Pacientes</a>
     </div>
+
 
 </x-filament::page>

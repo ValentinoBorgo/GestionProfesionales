@@ -10,6 +10,7 @@
     use App\Http\Controllers\AgendaController;
     use App\Filament\Pages\DetalleFichaMedica;
     use App\Filament\Pages\Pacientes;
+    use App\Filament\Pages\EditarFichaMedica;
 
 
     Route::get('/', function () {
@@ -31,9 +32,10 @@
         Route::put('modificar-turno/{id}', [TurnoController::class, 'actualizarTurno'])->name('secretario.actualizar-turno');
         //ficha medica 
         Route::get('ver-pacientes', [FichaMedicaController::class, 'verPacientes'])->name('secretario.ver-pacientes');
-        Route::get('editar-ficha/{id}', [FichaMedicaController::class, 'editarFicha'])->name('secretario.editar-ficha');
         Route::put('actualizar-ficha/{id}', [FichaMedicaController::class, 'actualizarFicha'])->name('secretario.actualizar-ficha');
     });
+
+    Route::get('/editar-ficha/{id}', EditarFichaMedica::class)->name('filament.editar-ficha');
 
     // mail/recordatorio
     Route::get('/enviar-correo', [MailController::class, 'enviarCorreo']);

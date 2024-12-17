@@ -63,7 +63,6 @@ class TurnoController extends Controller
         $this->turnoService->validarHorarioSucursal($horaFecha, $secretario);
 
         $salaDisponible = $this->turnoService->getSalaDisponible($horaFecha, $validatedData['id_tipo_turno'], $secretario);
-
         $turno = Turno::create([
             'hora_fecha' => $validatedData['hora_fecha'],
             'id_profesional' => $validatedData['id_profesional'],
@@ -74,7 +73,6 @@ class TurnoController extends Controller
             'id_sala' => $salaDisponible->id,
         ]);
 
-    // Obtener datos del paciente y ficha médica
     $paciente = $turno->paciente; // Relación definida en Turno
     $fichaMedica = $paciente->fichaMedica; // Relación definida en Paciente
 
@@ -128,8 +126,8 @@ class TurnoController extends Controller
 
     public function actualizarTurno(Request $request, $id)
     {
-        $turno = Turno::findOrFail($id);
-    $this->turnoService->validarTurno($request);
+    $turno = Turno::findOrFail($id);
+    $validatedData = $this->turnoService->validarTurno($request);
 
     $horaFecha = new \DateTime($request->hora_fecha);
 
@@ -224,6 +222,7 @@ class TurnoController extends Controller
 
         return redirect()->back()->with('success', 'Turno cancelado exitosamente.');
     }
+
     public function verTurnosProfesional()
     {
     $hoy = now()->startOfDay();
