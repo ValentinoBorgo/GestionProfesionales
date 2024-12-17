@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('localidad')->nullable();
             $table->string('provincia')->nullable();
             $table->string('persona_responsable')->nullable();
-            $table->integer('vinculo')->nullable();
+            $table->string('vinculo')->nullable();
             $table->string('dni')->nullable();
             $table->string( 'telefono_persona_responsable')->nullable();
         });

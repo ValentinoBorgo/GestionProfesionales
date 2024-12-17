@@ -26,6 +26,15 @@ class EditUser extends EditRecord
 
     protected function afterSave(): void
     {
+
+        if (!empty($this->roles)) {
+            $this->record->roles()->sync($this->roles);
+        }
+
+        if (!empty($this->sucursales)) {
+            $this->record->sucursales()->sync($this->sucursales);
+        }
+
         $tipoPersonaProfesional = TipoPersona::where('tipo', 'PROFESIONAL')->first();
 
         if ($tipoPersonaProfesional && intval($this->record->id_tipo) === intval($tipoPersonaProfesional->id)) {

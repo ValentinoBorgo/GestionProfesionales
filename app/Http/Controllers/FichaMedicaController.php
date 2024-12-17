@@ -32,6 +32,7 @@ class FichaMedicaController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'apellido' => 'required|string|max:255',
+            'email' => 'required|email',
             'edad' => 'required|string|max:10',
             'fecha_nac' => 'required|date',
             'ocupacion' => 'required|string|max:255',
@@ -46,6 +47,7 @@ class FichaMedicaController extends Controller
         ], [
             'nombre.required' => 'El nombre es obligatorio',
             'apellido.required' => 'El apellido es obligatorio',
+            'email.required' => 'El formato del correo electrónico no es válido',
             'edad.required' => 'La edad es obligatoria',
             'fecha_nac.required' => 'La fecha de nacimiento es obligatoria',
             'ocupacion.required' => 'La ocupación es obligatoria',

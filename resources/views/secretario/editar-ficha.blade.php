@@ -21,6 +21,10 @@
             <input type="text" name="apellido" id="apellido" value="{{ $ficha->apellido }}" required>
             <span class="error" id="apellido-error"></span>
         </label><br>
+        <label>Email: 
+            <input type="email" name="email" id="email" value="{{ $ficha->email }}" required>
+            <span class="error" id="email-error"></span>
+        </label><br>
         <label>Edad: 
             <input type="text" name="edad" id="edad" value="{{ $ficha->edad }}" required>
             <span class="error" id="edad-error"></span>
@@ -110,6 +114,7 @@
         // Validaciones para cada campo
         validateField('nombre', 'El nombre es obligatorio');
         validateField('apellido', 'El apellido es obligatorio');
+        validateField('email', 'El formato de email es incorrecto');
         validateField('dni', 'El DNI es obligatorio');
         validateField('edad', 'La edad es obligatoria');
         validateField('fecha_nac', 'La fecha de nacimiento es obligatoria y debe ser formato AAAA-MM-DD');

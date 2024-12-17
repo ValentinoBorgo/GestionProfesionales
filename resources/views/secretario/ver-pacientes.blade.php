@@ -10,6 +10,7 @@
             <tr>
                 <th>Nombre</th>
                 <th>Apellido</th>
+                <th>Email</th>
                 <th>DNI</th>
                 <th>Edad</th>
                 <th>Fecha Nacimiento</th>
@@ -29,6 +30,7 @@
             <tr>
                 <td>{{ $ficha->nombre }}</td>
                 <td>{{ $ficha->apellido }}</td>
+                <td>{{ $ficha->email }}</td>
                 <td>{{ $ficha->dni }}</td>
                 <td>{{ $ficha->edad }}</td>
                 <td>{{ $ficha->fecha_nac }}</td>
