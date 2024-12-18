@@ -13,8 +13,7 @@ class SecretarioIndex extends Page
 
     public static function shouldRegisterNavigation(): bool
     {
-        $user = auth()->user();
-        return $user && $user->secretario ? true : false;
+       return false;
     }
 
     public $turnosHoy;

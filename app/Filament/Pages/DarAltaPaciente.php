@@ -21,12 +21,14 @@ class DarAltaPaciente extends Page implements HasForms
     protected static ?string $navigationIcon = 'heroicon-o-user-plus';
     protected static string $view = 'filament.pages.dar-alta-paciente';
     protected static ?string $title = 'Dar de Alta Paciente';
-    protected static ?string $navigationLabel = 'Dar de Alta Paciente';
+    protected static ?string $navigationLabel = 'Dar de Alta Paciente - Secretario';
     
     public static function shouldRegisterNavigation(): bool
     {
-        return false;
+        $user = auth()->user();
+        return ($user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_SECRETARIO']))) ? true : false;
     }
+
     public ?array $data = []; // Estado del formulario
 
     public function form(Form $form): Form
@@ -41,7 +43,11 @@ class DarAltaPaciente extends Page implements HasForms
                     DatePicker::make('fecha_nac')->label('Fecha Nacimiento')->required(),
                     TextInput::make('ocupacion')->label('Ocupación')->required()->maxLength(255),
                     TextInput::make('domicilio')->label('Domicilio')->required()->maxLength(255),
-                    TextInput::make('telefono')->label('Teléfono')->required()->maxLength(20),
+                    TextInput::make('telefono')
+                    ->label('Teléfono')
+                    ->required()
+                    ->maxLength(10) // Limita la entrada a 11 caracteres
+                    ->reactive(),
                     TextInput::make('dni')->label('DNI')->required()->maxLength(20),
                     TextInput::make('localidad')->label('Localidad')->required()->maxLength(255),
                     TextInput::make('provincia')->label('Provincia')->required()->maxLength(255),
