@@ -12,7 +12,6 @@
         }
 
         th {
-            background-color: #f4f4f4;
             font-weight: bold;
         }
 
@@ -62,10 +61,10 @@
                         <td>{{ $turno->paciente->fichaMedica->nombre }} {{ $turno->paciente->fichaMedica->apellido }}</td>
                         <td>{{ $turno->tipoTurno->nombre }}</td>
                         <td>{{ $turno->estado->nombre }}</td>
-                        <td>{{ $turno->sala->nombre }}</td>
-                        <td>{{ $turno->sala->sucursal->nombre }}</td>
+                        <td>{{ $turno->sala?->nombre ?? '' }}</td>
+                        <td>{{ $turno->sala?->sucursal?->nombre ?? '' }}</td>
                         <td>
-                            <a href="{{ route('secretario.modificar-turno', $turno->id) }}" class="btn-accion">
+                            <a href="{{ route('filament.modificar-turno', $turno->id) }}" class="btn-accion">
                                 Modificar turno
                             </a>
                         </td>

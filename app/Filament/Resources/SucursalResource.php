@@ -25,6 +25,12 @@ class SucursalResource extends Resource
 
    protected static ?string $label = 'Sucursal';
 
+   public static function shouldRegisterNavigation(): bool
+   {
+       $user = auth()->user();
+       return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_ADMIN']));
+   }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -50,9 +56,10 @@ class SucursalResource extends Resource
                 Forms\Components\TextInput::make('telefono')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('horarios')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\TimePicker::make('horario_apertura')
+                    ->required(),
+                Forms\Components\TimePicker::make('horario_cierre')
+                    ->required(),
             ]);
     }
 
@@ -72,7 +79,8 @@ class SucursalResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('codigo_postal'),
                 Tables\Columns\TextColumn::make('telefono'),
-                Tables\Columns\TextColumn::make('ihorarios'),
+                Tables\Columns\TextColumn::make('horario_apertura'),
+                Tables\Columns\TextColumn::make('horario_cierre'),
             ])
             ->filters([
                 //

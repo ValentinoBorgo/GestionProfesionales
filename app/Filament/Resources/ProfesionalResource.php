@@ -19,6 +19,14 @@ class ProfesionalResource extends Resource
     protected static ?string $pluralLabel = 'Profesionales';
     protected static ?string $label = 'Profesional';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_ADMIN', 'ROLE_PROFESIONAL']));
+    }
+    
+    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -49,11 +57,9 @@ class ProfesionalResource extends Resource
     
                 Tables\Columns\TextColumn::make('persona.name')
                     ->label('Nombre y Apellido')
-                    ->formatStateUsing(function ($record) {
-                        return $record->persona
-                            ? ($record->persona->name . ' ' . $record->persona->apellido)
-                            : '-';
-                    })
+                    ->formatStateUsing(fn ($record) => $record->persona
+                        ? ($record->persona->name . ' ' . $record->persona->apellido)
+                        : '-')
                     ->searchable(),
     
                 Tables\Columns\TextColumn::make('persona.email')
@@ -65,65 +71,36 @@ class ProfesionalResource extends Resource
                     ->searchable(),
     
                 Tables\Columns\TextColumn::make('persona.sucursales')
-                    ->label('Sucursal')
-                    ->formatStateUsing(function ($record) {
-                        return $record->persona && $record->persona->sucursales
-                            ? $record->persona->sucursales->pluck('nombre')->join(', ')
-                            : '-';
-                    })
-                    ->searchable(),
-    
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Creado el')
-                    ->dateTime()
-                    ->sortable(),
-    
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Actualizado el')
-                    ->dateTime()
-                    ->sortable(),
+                    ->label('Sucursales')
+                    ->formatStateUsing(fn ($record) => $record->persona?->sucursales?->pluck('nombre')?->join(', ') ?? '-'),
             ])
-            ->filters([])
             ->actions([
-                Tables\Actions\Action::make('editarSucursal')
-                    ->label('Editar Sucursal')
+                Tables\Actions\Action::make('editarUsuario')
+                    ->label('Editar Usuario')
                     ->icon('heroicon-o-pencil')
-                    ->modalHeading('Editar Sucursal del Profesional')
-                    ->form([
-                        Forms\Components\Select::make('sucursales')
-                            ->label('Sucursales disponibles')
-                            ->options(\App\Models\Sucursal::all()->pluck('nombre', 'id')->toArray())
-                            ->required(),
-                    ])
-                    ->action(function ($record, $data) {
-                        $persona = $record->persona;
-                        
-                        if ($persona) {
-                            $persona->sucursales()->sync($data['sucursales']);
-                        }
-                    })
-                    ->requiresConfirmation()
-            ])            
+                    ->url(fn ($record) => url("/dashboard/users/{$record->persona->id}/edit")) // Ruta personalizada
+                    ->openUrlInNewTab(), // Opcional: abrir en nueva pestaña
+            ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
 
     public static function getRelations(): array
     {
-        return [
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListProfesionals::route('/'),
-            'create' => Pages\CreateProfesional::route('/create'),
             'edit' => Pages\EditProfesional::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
     }
 }

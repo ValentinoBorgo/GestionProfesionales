@@ -11,6 +11,12 @@ class SecretarioIndex extends Page
     protected static ?string $navigationLabel = 'Secretario - Dashboard';
     protected static string $view = 'filament.pages.secretario-index';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->secretario ? true : false;
+    }
+
     public $turnosHoy;
 
     public function mount()

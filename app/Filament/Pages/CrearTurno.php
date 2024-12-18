@@ -17,6 +17,8 @@ use App\Mail\Recordatorio;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Notification;
 use App\Services\TurnoService;
+use Illuminate\Validation\ValidationException;
+
 
 class CrearTurno extends Page
 {
@@ -24,6 +26,12 @@ class CrearTurno extends Page
     protected static string $view = 'filament.pages.crear-turno';
     protected static ?string $navigationLabel = 'Crear Turno';
     protected static ?string $title = 'Crear Turno';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->secretario ? true : false;
+    }
 
     public ?array $data = [];
 // Inyectar el servicio TurnoService
@@ -75,63 +83,78 @@ public function __construct()
     }
 
     public function submit()
-{
-    // Obtener el estado del formulario
-    $data = $this->form->getState();
-
-    // Obtener la fecha y hora del turno
-    $secretario = Auth::user();
-    // Validar fecha y hora
-    try {
-        $horaFecha = new \DateTime($data['hora_fecha']);
-        
-        // Validaciones de servicio
-        $this->turnoService->validarFechaHora($horaFecha);
-        $this->turnoService->disponibilidadProfesional($data['id_profesional'], $horaFecha);
-        $this->turnoService->ausenciaProfesional($data['id_profesional'], $horaFecha);
-
-        // Validar que el usuario tiene un secretario asociado
-        if (!$secretario->secretario) {
-            $this->addError('id_secretario', 'El usuario no tiene un secretario asociado.');
-            return;
+    {
+        try {
+            // Obtener el estado del formulario
+            $data = $this->form->getState();
+    
+            // Obtener el usuario secretario
+            $secretario = Auth::user();
+    
+            // Validar fecha y hora
+            $horaFecha = new \DateTime($data['hora_fecha']);
+            $this->turnoService->validarFechaHora($horaFecha);
+            $this->turnoService->disponibilidadProfesional($data['id_profesional'], $horaFecha);
+            $this->turnoService->ausenciaProfesional($data['id_profesional'], $horaFecha);
+    
+            // Validar si el usuario tiene un secretario
+            if (!$secretario->secretario) {
+                throw ValidationException::withMessages([
+                    'id_secretario' => 'El usuario actual no es un secretario.',
+                ]);
+            }
+    
+            $idSecretario = $secretario->secretario->id;
+    
+            // Validar horario de la sucursal
+            $this->turnoService->validarHorarioSucursal($horaFecha, $secretario);
+    
+            // Obtener sala disponible
+            $salaDisponible = $this->turnoService->getSalaDisponible(
+                $horaFecha,
+                $data['id_tipo_turno'],
+                $secretario
+            );
+    
+            if (!$salaDisponible) {
+                throw ValidationException::withMessages([
+                    'hora_fecha' => 'No hay salas disponibles en este horario.',
+                ]);
+            }
+    
+            // Crear turno
+            $turno = Turno::create([
+                'hora_fecha' => $data['hora_fecha'],
+                'id_profesional' => $data['id_profesional'],
+                'id_paciente' => $data['id_paciente'],
+                'id_tipo_turno' => $data['id_tipo_turno'],
+                'id_estado' => 1,
+                'id_secretario' => $idSecretario,
+                'id_sala' => $salaDisponible->id,
+            ]);
+    
+            // Enviar correo
+            $fichaMedica = $turno->paciente->fichaMedica ?? null;
+    
+            if ($fichaMedica && $fichaMedica->email) {
+                Mail::to($fichaMedica->email)->send(
+                    new Recordatorio("{$fichaMedica->nombre} {$fichaMedica->apellido}", $data['hora_fecha'])
+                );
+            }
+    
+            // Notificación de éxito
+            Notification::make()
+                ->title('Turno creado correctamente')
+                ->success()
+                ->send();
+    
+            $this->redirect(route('filament.ver-turnos'), navigate: true);
+        } catch (ValidationException $e) {
+            // Errores de validación capturados por Livewire
+            $this->addError('error', $e->getMessage());
+        } catch (\Exception $e) {
+            // Errores generales
+            $this->addError('general', 'Error inesperado: ' . $e->getMessage());
         }
-        $idSecretario = $secretario->secretario->id;
-        // Validar horario de la sucursal
-
-        $this->turnoService->validarHorarioSucursal($horaFecha, $secretario);
-        // Obtener la sala disponible
-        $salaDisponible = $this->turnoService->getSalaDisponible($horaFecha, $data['id_tipo_turno'], $secretario);
-        $idSala = $salaDisponible->id;
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        $this->addError('hora_fecha', $e->getMessage());
-        return;
     }
-
-    // Crear el turno
-    $turno = Turno::create([
-        'hora_fecha' => $data['hora_fecha'],
-        'id_profesional' => $data['id_profesional'],
-        'id_paciente' => $data['id_paciente'],
-        'id_tipo_turno' => $data['id_tipo_turno'],
-        'id_estado' => 1,
-        'id_secretario' => $idSecretario,
-        'id_sala' => $idSala,
-    ]);
-
-    // Enviar correo de recordatorio al paciente
-    $paciente = $turno->paciente;
-    $fichaMedica = $paciente->fichaMedica;
-
-    Mail::to($fichaMedica->email)->send(new Recordatorio("{$fichaMedica->nombre} {$fichaMedica->apellido}", $data['hora_fecha']));
-
-    // Notificar éxito
-    Notification::make()
-        ->title('Turno creado correctamente')
-        ->success()
-        ->send();
-
-    // Redirigir
-    $this->redirect(route('filament.pages.create-turno'), navigate: true);
-}
-
 }
