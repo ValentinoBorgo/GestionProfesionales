@@ -24,13 +24,13 @@ class CrearTurno extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-calendar';
     protected static string $view = 'filament.pages.crear-turno';
-    protected static ?string $navigationLabel = 'Crear Turno';
+    protected static ?string $navigationLabel = 'Crear Turno - Secretario';
     protected static ?string $title = 'Crear Turno';
 
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        return $user && $user->secretario ? true : false;
+        return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_SECRETARIO'])) ? true : false;
     }
 
     public ?array $data = [];
@@ -85,7 +85,6 @@ public function __construct()
     public function submit()
     {
         try {
-            // Obtener el estado del formulario
             $data = $this->form->getState();
     
             // Obtener el usuario secretario
@@ -108,7 +107,6 @@ public function __construct()
     
             // Validar horario de la sucursal
             $this->turnoService->validarHorarioSucursal($horaFecha, $secretario);
-    
             // Obtener sala disponible
             $salaDisponible = $this->turnoService->getSalaDisponible(
                 $horaFecha,

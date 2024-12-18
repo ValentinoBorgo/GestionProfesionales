@@ -8,13 +8,13 @@ use App\Models\Turno;
 class Agenda extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-
+    protected static ?string $navigationLabel = 'Agenda Turnos - Profesional';
     protected static string $view = 'filament.pages.agenda';
 
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        return $user && $user->profesional ? true : false;
+        return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_PROFESIONAL'])) ? true : false;
     }
 
     public $turnos;

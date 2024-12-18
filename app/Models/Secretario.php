@@ -27,8 +27,8 @@ class Secretario extends Model
         return $this->belongsToMany(Sucursal::class, 'sucursal_usuario', 'id_usuario', 'id_sucursal', 'id_usuario', 'id');
     }
     
-    // public function sucursales()
-    // {
-    //     return $this->belongsToMany(Sucursal::class, 'sucursal_usuario', 'id_usuario', 'id_sucursal');
-    // }
+    public function sucursales()
+     {
+         return $this->belongsToMany(Sucursal::class, 'sucursal_usuario', 'id_usuario', 'id_sucursal');
+     }
 }

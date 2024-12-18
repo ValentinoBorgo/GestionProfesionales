@@ -22,30 +22,34 @@ return new class extends Migration
             $table->foreign('id_sucursal')->references('id')->on('sucursal')->onDelete('cascade');
         });
 
-           // Insertar datos de prueba
-    DB::table('salas')->insert([
-        [
-            'nombre' => 'Sala de Consulta 1',
-            'tipo' => 'Consulta',
-            'id_sucursal' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ],
-        [
-            'nombre' => 'Sala de Cirugía 1',
-            'tipo' => 'Cirugía',
-            'id_sucursal' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ],
-        [
-            'nombre' => 'Sala de Rehabilitación 1',
-            'tipo' => 'Rehabilitación',
-            'id_sucursal' => 2,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ],
-    ]);
+                $sucursales = DB::table('sucursal')->get();
+
+                $salas = [];
+                foreach ($sucursales as $sucursal) {
+                    $salas[] = [
+                        'nombre' => 'Sala de Consulta ' . $sucursal->id,
+                        'tipo' => 'Consulta',
+                        'id_sucursal' => $sucursal->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                    $salas[] = [
+                        'nombre' => 'Sala de Cirugía ' . $sucursal->id,
+                        'tipo' => 'Cirugía',
+                        'id_sucursal' => $sucursal->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                    $salas[] = [
+                        'nombre' => 'Sala de Rehabilitación ' . $sucursal->id,
+                        'tipo' => 'Rehabilitación',
+                        'id_sucursal' => $sucursal->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+        
+                DB::table('salas')->insert($salas);
     }
 
     /**

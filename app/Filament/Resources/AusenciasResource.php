@@ -24,7 +24,7 @@ class AusenciasResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        return $user && $user->profesional ? true : false;
+        return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_PROFESIONAL']));
     }
 
     public static function form(Form $form): Form

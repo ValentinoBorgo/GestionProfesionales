@@ -25,6 +25,12 @@ class UserResource extends Resource
 
    protected static ?string $label = 'Usuario';
 
+   public static function shouldRegisterNavigation(): bool
+   {
+       $user = auth()->user();
+       return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_ADMIN']));
+   }
+
     public static function form(Form $form): Form
     {
         return $form    
@@ -60,6 +66,10 @@ class UserResource extends Resource
                     ->required()
                     ->preload()
                     ->placeholder('Seleccione un tipo')
+                    ->options(function () {
+                        return \App\Models\TipoPersona::where('tipo', '!=', 'PACIENTE')
+                            ->pluck('tipo', 'id');
+                    })
                     ->reactive(),
                 Forms\Components\TextInput::make('titulo')
                     ->label('Título')

@@ -35,24 +35,36 @@ class TurnoService
     public function validarHorarioSucursal(\DateTime $horaFecha, $secretario)
     {
         $horaTurno = $horaFecha->format('H:i:s');
-        $sucursalesUsuario = collect($secretario->sucursalesGenerales);
+        //aca se usa el sucusales comun de secretario, //AL CREAR UN TURNO CON SECRETARIOS VA SUCUSARLES
+        $sucursalesUsuario = collect($secretario->sucursales);
+
+        // Verificar si está vacío y utilizar sucursalesGenerales
+        if ($sucursalesUsuario->count() === 0) {
+            $sucursalesUsuario = collect($secretario->sucursalesGenerales ?? []);
+        }
+
         if ($sucursalesUsuario->count() === 0) {
             throw ValidationException::withMessages([
                 'error' => 'El usuario no tiene sucursales asignadas.',
             ]);
         }
-        $horariosFiltrados = $sucursalesUsuario->filter(function ($sucursal) use ($horaTurno) {
-            return $sucursal->horario_apertura <= $horaTurno && $sucursal->horario_cierre >= $horaTurno;
+        $bool = false;
+        $horariosFiltrados = $sucursalesUsuario->filter(function ($sucursal) use ($horaTurno, &$bool) {
+            $resultado = $sucursal->horario_apertura <= $horaTurno && $sucursal->horario_cierre >= $horaTurno;
+            if ($resultado) {
+                $bool = $resultado;
+            }
+            return $resultado;
         });
         
-        if ($horariosFiltrados === null) {
+        if ($bool === false) {
             throw ValidationException::withMessages([
                 'hora_fecha' => 'El turno debe estar dentro del horario de apertura y cierre de las sucursales disponibles.',
             ]);
         }
     }
 
-    public function disponibilidadProfesional($idProfesional, \DateTime $horaFecha, $idTurnoExcluido = null, $idEstado)
+    public function disponibilidadProfesional($idProfesional, \DateTime $horaFecha, $idTurnoExcluido = null)
     {
 
         // $CANCELADO_CLIENTE = EstadoTurno::where('codigo', EstadoTurno::CANCELADO_CLIENTE)->first()->id ?? null;
@@ -99,7 +111,7 @@ class TurnoService
         }
     }
 
-    public function getSalaDisponible(\DateTime $horaFecha, $idTipoTurno, $secretario, $idTurnoExcluido = null, $idEstado)
+    public function getSalaDisponible(\DateTime $horaFecha, $idTipoTurno, $secretario, $idTurnoExcluido = null)
     {
 
         // $CANCELADO_CLIENTE = EstadoTurno::where('codigo', EstadoTurno::CANCELADO_CLIENTE)->first()->id ?? null;
@@ -110,7 +122,13 @@ class TurnoService
         // }
 
         $tipoTurno = TipoTurno::find($idTipoTurno);
-        $sucursalesUsuario = collect($secretario->sucursalesGenerales);
+        //AL CREAR UN TURNO CON SECRETARIOS VA SUCUSARLES
+        $sucursalesUsuario = collect($secretario->sucursales);
+
+        if ($sucursalesUsuario->count() === 0) {
+            $sucursalesUsuario = collect($secretario->sucursalesGenerales ?? []);
+        }
+
         if ($sucursalesUsuario->count() === 0) {
             throw ValidationException::withMessages([
                 'error' => 'El usuario no tiene sucursales asignadas.',
