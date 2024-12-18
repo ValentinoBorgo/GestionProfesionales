@@ -12,6 +12,12 @@ class VerTurnos extends Page
     protected static string $view = 'filament.pages.ver-turnos';
     public $turnos;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->secretario ? true : false;
+    }
+
     public function mount()
     {
         // Cargar todos los turnos con relaciones necesarias

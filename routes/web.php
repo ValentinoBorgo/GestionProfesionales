@@ -12,6 +12,7 @@
     use App\Filament\Pages\Pacientes;
     use App\Filament\Pages\EditarFichaMedica;
     use App\Filament\Pages\VerTurnos;
+    use App\Filament\Pages\ModificarTurno;
 
     Route::get('/', function () {
         return redirect('dashboard/login');
@@ -33,7 +34,7 @@
     });
     Route::get('/ver-turnos', VerTurnos::class)->name('filament.ver-turnos');
     Route::get('/editar-ficha/{id}', EditarFichaMedica::class)->name('filament.editar-ficha');
-
+    Route::get('/modificar-turnos/{id}', ModificarTurno::class)->name('filament.modificar-turno');
     // mail/recordatorio
     Route::get('/enviar-correo', [MailController::class, 'enviarCorreo']);
 

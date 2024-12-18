@@ -12,10 +12,11 @@
             </ul>
         </div>
         @endif
-
         <br>
         <div class="mt-4">
-            <x-filament::button type="submit">Crear Turno</x-filament::button>
+            <x-filament::button type="submit">Actualizar Turno</x-filament::button>
         </div>
     </form>
+
+    <a href="{{ route('filament.ver-turnos') }}" class="btn btn-secondary">Volver</a>
 </x-filament::page>

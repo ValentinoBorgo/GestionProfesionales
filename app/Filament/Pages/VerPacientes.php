@@ -11,6 +11,12 @@ class VerPacientes extends Page
     protected static ?string $navigationLabel = 'Ver Pacientes';
     protected static string $view = 'filament.pages.ver-pacientes';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->secretario ? true : false;
+    }
+
     public $pacientes;
 
     public function mount()

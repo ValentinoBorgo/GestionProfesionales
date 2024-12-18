@@ -25,6 +25,12 @@ class RolResource extends Resource
 
     protected static ?string $label = 'Rol';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $user = auth()->user();
+        return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_ADMIN']));
+    }
+
     public static function form(Form $form): Form
     {
         return $form
