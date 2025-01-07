@@ -78,9 +78,27 @@ class UserResource extends Resource
                             ->pluck('tipo', 'id');
                     })
                     ->reactive(),
-                Forms\Components\TextInput::make('titulo')
+                Forms\Components\Select::make('titulo')
                     ->label('Título')
-                    ->maxLength(255)
+                    ->searchable()
+                    ->options([
+                        'Cardiologo' => 'Cardiologo',
+                        'Cirujano' => 'Cirujano',
+                        'Consultor' => 'Consultor',
+                        'Especialista' => 'Especialista',
+                        'Estomatologo' => 'Estomatologo',
+                        'Farmacia' => 'Farmacia',
+                        'Hematologo' => 'Hematologo',
+                        'Medico' => 'Medico',
+                        'Neurologo' => 'Neurologo',
+                        'Oftalmología' => 'Oftalmología',
+                        'Ortopedia' => 'Ortopedia',
+                        'Pediatra' => 'Pediatra',
+                        'Psiquiatra' => 'Psiquiatra',
+                        'Urologo' => 'Urologo',
+                    ])
+                    ->required()
+                    ->placeholder('Seleccione un tipo')
                     ->visible(function (callable $get) {
                         $tipoSeleccionado = $get('id_tipo');
                         
@@ -228,3 +246,14 @@ class UserResource extends Resource
 }
 
 
+// acordarse adaptar para titulos profesionales meka  
+// Forms\Components\Select::make('tipo')
+// ->label('Tipo de Sala')
+// ->options([
+//     'Consulta' => 'Consulta',
+//     'Cirugía' => 'Cirugía',
+//     'Rehabilitación' => 'Rehabilitación',
+//     'Otra' => 'Otra',
+// ])
+// ->required()
+// ->placeholder('Seleccione un tipo'),

@@ -18,10 +18,10 @@ return new class extends Migration
             $table->string('apellido')->nullable();
             $table->string('email')->unique();
             $table->string('edad')->nullable();
-            $table->string('fecha_nac')->nullable();
+            $table->datetime('fecha_nac')->nullable();
             $table->string('ocupacion')->nullable();
             $table->string('domicilio')->nullable();
-            $table->integer('telefono')->nullable();
+            $table->string('telefono')->nullable();
             $table->string('localidad')->nullable();
             $table->string('provincia')->nullable();
             $table->string('persona_responsable')->nullable();
