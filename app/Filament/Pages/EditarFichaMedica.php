@@ -41,8 +41,16 @@ class EditarFichaMedica extends Page implements HasForms
                         TextInput::make('nombre')->label('Nombre')->required(),
                         TextInput::make('apellido')->label('Apellido')->required(),
                         TextInput::make('email')->label('Email')->email()->required(),
-                        TextInput::make('edad')->label('Edad')->numeric()->required(),
-                        DatePicker::make('fecha_nac')->label('Fecha de Nacimiento')->required(),
+                        DatePicker::make('fecha_nac')->label('Fecha Nacimiento')
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state) {
+                            $edad = \Carbon\Carbon::parse($state)->age; // Calcula la edad
+                            $set('edad', $edad); // Establece el valor de edad
+                        }
+                        }),
+                        TextInput::make('edad')->label('Edad')->readonly(),
                         TextInput::make('ocupacion')->label('Ocupación')->required(),
                         TextInput::make('domicilio')->label('Domicilio')->required(),
                         TextInput::make('telefono')->label('Teléfono')->required(),
