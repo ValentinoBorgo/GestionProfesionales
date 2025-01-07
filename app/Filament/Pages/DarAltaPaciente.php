@@ -39,8 +39,16 @@ class DarAltaPaciente extends Page implements HasForms
                     TextInput::make('nombre')->label('Nombre')->required()->maxLength(255),
                     TextInput::make('apellido')->label('Apellido')->required()->maxLength(255),
                     TextInput::make('email')->label('Email')->email()->required(),
-                    TextInput::make('edad')->label('Edad')->required()->maxLength(10),
-                    DatePicker::make('fecha_nac')->label('Fecha Nacimiento')->required(),
+                    DatePicker::make('fecha_nac')->label('Fecha Nacimiento')
+                    ->required()
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state) {
+                            $edad = \Carbon\Carbon::parse($state)->age; // Calcula la edad
+                            $set('edad', $edad); // Establece el valor de edad
+                        }
+                    }),
+                    TextInput::make('edad')->label('Edad')->readonly(),
                     TextInput::make('ocupacion')->label('Ocupación')->required()->maxLength(255),
                     TextInput::make('domicilio')->label('Domicilio')->required()->maxLength(255),
                     TextInput::make('telefono')

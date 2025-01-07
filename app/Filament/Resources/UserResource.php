@@ -53,11 +53,18 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('telefono')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('edad')
+                Forms\Components\DateTimePicker::make('fecha_nac')
                     ->required()
-                    ->numeric()
-                    ->minValue(0),
-                Forms\Components\DateTimePicker::make('fecha_nac'),
+                    ->reactive()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        if ($state) {
+                            $edad = \Carbon\Carbon::parse($state)->age; // Calcula la edad
+                            $set('edad', $edad); // Establece el valor de edad
+                        }
+                    }),
+                Forms\Components\TextInput::make('edad')
+                    ->readonly()
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('domicilio')
                     ->maxLength(255),
                 Forms\Components\Select::make('id_tipo')
@@ -153,9 +160,9 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('apellido')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('telefono'),
-                Tables\Columns\TextColumn::make('edad'),
                 Tables\Columns\TextColumn::make('fecha_nac')
                     ->dateTime(),
+                Tables\Columns\TextColumn::make('edad'),
                 Tables\Columns\TextColumn::make('domicilio'),
                 Tables\Columns\TextColumn::make('id_tipo')
                     ->searchable(),
