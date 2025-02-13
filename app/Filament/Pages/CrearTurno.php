@@ -99,6 +99,7 @@ public function __construct()
             // Validar si el usuario tiene un secretario
             if (!$secretario->secretario) {
                 throw ValidationException::withMessages([
+                    dd($secretario),
                     'id_secretario' => 'El usuario actual no es un secretario.',
                 ]);
             }

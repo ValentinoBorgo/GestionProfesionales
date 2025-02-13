@@ -80,19 +80,19 @@ class UserResource extends Resource
                     ->reactive(),
                 Forms\Components\Select::make('titulo')
                     ->label('Título')
-                    ->searchable()
                     ->options([
                         'Cardiologo' => 'Cardiologo',
                         'Cirujano' => 'Cirujano',
-                        'Consultor' => 'Consultor',
+                        'Clínico' => 'Clínico',
                         'Especialista' => 'Especialista',
                         'Estomatologo' => 'Estomatologo',
-                        'Farmacia' => 'Farmacia',
+                        'Otorrinolaringologo' => 'Otorrinolaringologo',
                         'Hematologo' => 'Hematologo',
-                        'Medico' => 'Medico',
+                        'Ginecologo' => 'Ginecologo',
                         'Neurologo' => 'Neurologo',
-                        'Oftalmología' => 'Oftalmología',
-                        'Ortopedia' => 'Ortopedia',
+                        'Oftalmologo' => 'Oftalmologo',
+                        'Dermatologo' => 'Dermatologo',
+                        'Deportologo' => 'Deportologo',
                         'Pediatra' => 'Pediatra',
                         'Psiquiatra' => 'Psiquiatra',
                         'Urologo' => 'Urologo',
@@ -133,7 +133,8 @@ class UserResource extends Resource
                     ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
                     ->label('Sucursal')
                     ->preload()
-                    ->multiple(),
+                    ->multiple()
+                    ->searchable(),
                 Forms\Components\TextInput::make('nombre_usuario')
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
@@ -199,8 +200,7 @@ class UserResource extends Resource
                     ->label('Roles')
                     ->formatStateUsing(function ($record) {
                         return $record->roles->pluck('nombre')->implode(', ');
-                    })
-                    ->searchable(),    
+                    }),    
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -244,16 +244,3 @@ class UserResource extends Resource
         ];
     }
 }
-
-
-// acordarse adaptar para titulos profesionales meka  
-// Forms\Components\Select::make('tipo')
-// ->label('Tipo de Sala')
-// ->options([
-//     'Consulta' => 'Consulta',
-//     'Cirugía' => 'Cirugía',
-//     'Rehabilitación' => 'Rehabilitación',
-//     'Otra' => 'Otra',
-// ])
-// ->required()
-// ->placeholder('Seleccione un tipo'),
