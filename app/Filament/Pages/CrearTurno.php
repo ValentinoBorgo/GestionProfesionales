@@ -33,7 +33,13 @@ class CrearTurno extends Page
         return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_SECRETARIO'])) ? true : false;
     }
 
-    public ?array $data = [];
+    public ?array $data = [
+        'hora_fecha' => null,
+        'id_profesional' => null,
+        'id_paciente' => null,
+        'id_tipo_turno' => null,
+        'id_estado' => 1,
+    ];
 // Inyectar el servicio TurnoService
 protected TurnoService $turnoService;
 
@@ -52,6 +58,8 @@ public function __construct()
 
                     Select::make('id_profesional')
                     ->label('Profesional')
+                    ->searchable()
+                    ->live()
                     ->options(
                         User::where('id_tipo', 3) // Filtrar por tipo de profesional
                             ->with('profesional') // Cargar la relación 'profesional' para obtener el nombre y apellido
@@ -59,7 +67,7 @@ public function __construct()
                             ->mapWithKeys(function ($user) {
                                 $profesional = $user->profesional; // Obtener el profesional relacionado
                                 if ($profesional) {
-                                    return [$profesional->id => "{$user->name} {$user->apellido}"]; // Concatenar nombre y apellido
+                                    return [$profesional->id => "{$user->name} {$user->apellido} - {$profesional->titulo}"]; // Concatenar nombre y apellido
                                 }
                                 return [];
                             })
@@ -68,12 +76,16 @@ public function __construct()
 
                 Select::make('id_paciente')
                     ->label('Paciente')
+                    ->searchable()
+                    ->live()
                     ->options(Paciente::with('fichaMedica')->get()->pluck('fichaMedica.nombre', 'id'))
                     ->required(),
 
                 Select::make('id_tipo_turno')
                     ->label('Tipo de Turno')
+                    ->searchable()
                     ->options(TipoTurno::all()->pluck('nombre', 'id'))
+                    ->live()
                     ->required(),
 
                 Hidden::make('id_estado')
@@ -99,7 +111,6 @@ public function __construct()
             // Validar si el usuario tiene un secretario
             if (!$secretario->secretario) {
                 throw ValidationException::withMessages([
-                    dd($secretario),
                     'id_secretario' => 'El usuario actual no es un secretario.',
                 ]);
             }
