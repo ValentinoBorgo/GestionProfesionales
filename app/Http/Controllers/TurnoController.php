@@ -262,29 +262,41 @@ class TurnoController extends Controller
     }
     
     public function buscarPacienteProfesional(Request $request)
-    {
-        $query = Turno::query();
-    
-        if ($request->has('search')) {
-            $search = $request->input('search');
-    
-            $query->whereHas('paciente.fichaMedica', function ($q) use ($search) {
-                $q->where('nombre', 'LIKE', "%{$search}%")
-                  ->orWhere('apellido', 'LIKE', "%{$search}%");
-            })
-            ->orWhereHas('sala.sucursal', function ($q) use ($search) {
-                $q->where('nombre', 'LIKE', "%{$search}%");
-            })
-            ->orWhere('id_estado', 'LIKE', "%{$search}%");
-        }
-    
-        $turnos = $query->get();
-    
-        if (request()->ajax()) {
-            return view('partials.lista_turnos', compact('turnos'))->render();
-        }
-    
-        return view('nombre_de_tu_vista', compact('turnos'));
+{
+    $query = Turno::query();
+
+    // Búsqueda por paciente, sucursal o estado
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->whereHas('paciente.fichaMedica', function ($q) use ($search) {
+            $q->where('nombre', 'LIKE', "%{$search}%")
+              ->orWhere('apellido', 'LIKE', "%{$search}%");
+        })
+        ->orWhereHas('sala.sucursal', function ($q) use ($search) {
+            $q->where('nombre', 'LIKE', "%{$search}%");
+        })
+        ->orWhere('id_estado', 'LIKE', "%{$search}%");
     }
+
+    // Ordenamiento por estado (Todos, Cancelado o Programado)
+    if ($request->has('sort') && $request->input('sort') === 'estado') {
+        $order = $request->input('order');
+        if ($order === 'cancelado') {
+            $query->whereIn('id_estado', [3, 4]); // IDs para estados cancelados
+        } elseif ($order === 'programado') {
+            $query->whereIn('id_estado', [1, 2]); // IDs para estados programados/reprogramados
+        } elseif ($order === 'todos') {
+            // No se aplica ningún filtro, se muestran todos los turnos
+        }
+    }
+
+    $turnos = $query->get();
+
+    if (request()->ajax()) {
+        return view('partials.lista_turnos', compact('turnos'))->render();
+    }
+
+    return view('nombre_de_tu_vista', compact('turnos'));
+}
     }
     
