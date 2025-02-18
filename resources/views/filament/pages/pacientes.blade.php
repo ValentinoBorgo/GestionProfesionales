@@ -45,8 +45,28 @@
         .btn-gestion:active {
             background-color: #1e7e34;
         }
+
+        #search {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        #search:focus {
+            border-color: #28a745;
+            outline: none;
+        }
     </style>
 
+       <!-- Campo de búsqueda -->
+       <div class="mb-4">
+        <input type="text" id="search" placeholder="Buscar por nombre o apellido..." value="{{ request('search') }}">
+    </div>
+
+    <!-- Tabla de fichas médicas -->
     <table>
         <thead>
             <tr>
@@ -55,20 +75,24 @@
                 <th>Acciones</th>
             </tr>
         </thead>
-        <tbody>
-            @forelse ($fichasMedicas as $ficha)
-                <tr>
-                    <td>{{ $ficha->nombre }} {{ $ficha->apellido }}</td>
-                    <td>{{ $ficha->id }}</td>
-                    <td>
-                        <a href="{{ route('fichaMedica.show', $ficha->id) }}" class="btn-gestion">Gestionar Ficha Médica</a>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="3">No hay pacientes asignados.</td>
-                </tr>
-            @endforelse
+        <tbody id="resultados">
+            @include('partials.lista_fichas', ['fichasMedicas' => $fichasMedicas])
         </tbody>
     </table>
+
+    <!-- Script para manejar la búsqueda -->
+    <script>
+        document.getElementById('search').addEventListener('keyup', function () {
+            let query = this.value; // Obtiene el valor del campo de búsqueda
+            fetch("{{ route('buscarFichasMedicas') }}?search=" + query, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('resultados').innerHTML = html; // Actualiza la tabla con los resultados
+            });
+        });
+    </script>
 </x-filament::page>

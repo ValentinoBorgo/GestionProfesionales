@@ -57,3 +57,5 @@
     Route::get('/turno/cancelar/{id}', [TurnoController::class, 'cancelarTurno'])->name('turno.cancelarTurno');
     Route::get('/turno/revertir/{id}', [TurnoController::class, 'revertirTurno'])->name('turno.revertirTurno');
     Route::get('/buscarpacienteprofesional', [TurnoController::class, 'buscarPacienteProfesional'])->name('buscarpacienteprofesional');
+    Route::get('/buscar-fichas-medicas', [FichaMedicaController::class, 'buscarFichasMedicas'])
+    ->name('buscarFichasMedicas');

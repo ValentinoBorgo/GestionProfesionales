@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\FichaMedica;
+use App\Models\Turno;
 
 class FichaMedicaController extends Controller
 {
@@ -65,4 +66,40 @@ class FichaMedicaController extends Controller
 
         return redirect()->route('secretario.ver-pacientes')->with('success', 'Ficha médica actualizada');
     }
+
+    public function buscarFichasMedicas(Request $request)
+{
+    $user = auth()->user();
+    $query = FichaMedica::query();
+
+    // Filtrar por profesional o secretario logueado
+    if ($user->profesional) {
+        $profesionalId = $user->profesional->id;
+        $turnos = Turno::where('id_profesional', $profesionalId)->with('paciente')->get();
+        $pacientes = $turnos->pluck('paciente')->unique();
+        $query->whereIn('id', $pacientes->pluck('id_ficha_medica'));
+    } elseif ($user->secretario) {
+        $secretarioId = $user->secretario->id;
+        $turnos = Turno::where('id_secretario', $secretarioId)->with('paciente')->get();
+        $pacientes = $turnos->pluck('paciente')->unique();
+        $query->whereIn('id', $pacientes->pluck('id_ficha_medica'));
+    }
+
+    // Búsqueda por nombre o apellido
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('nombre', 'LIKE', "%{$search}%")
+              ->orWhere('apellido', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $fichasMedicas = $query->get();
+
+    if ($request->ajax()) {
+        return view('partials.lista_fichas', compact('fichasMedicas'))->render();
+    }
+
+    return view('nombre_de_tu_vista', compact('fichasMedicas'));
+}
 }
