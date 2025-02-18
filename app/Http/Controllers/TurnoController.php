@@ -222,6 +222,23 @@ class TurnoController extends Controller
 
         return redirect()->back()->with('success', 'Turno cancelado exitosamente.');
     }
+    public function revertirTurno($id)
+    {
+        $turno = Turno::findOrFail($id); // Encuentra el turno por ID
+
+        // Cambia el estado del turno a "Reprogramado"
+        $estadoReprogramado = EstadoTurno::where('codigo', 'REPROGRAMADO')->first();
+
+        if (!$estadoReprogramado) {
+            return redirect()->back()->with('error', 'No se encontró el estado "Reprogramado".');
+        }
+
+        $turno->update([
+            'id_estado' => $estadoReprogramado->id,
+        ]);
+
+        return redirect()->back()->with('success', 'Turno reprogramado exitosamente.');
+    }
 
     public function verTurnosProfesional()
     {
@@ -243,5 +260,31 @@ class TurnoController extends Controller
 
     return view('profesional.index', compact('turnosHoy'));
     }
+    
+    public function buscarPacienteProfesional(Request $request)
+    {
+        $query = Turno::query();
+    
+        if ($request->has('search')) {
+            $search = $request->input('search');
+    
+            $query->whereHas('paciente.fichaMedica', function ($q) use ($search) {
+                $q->where('nombre', 'LIKE', "%{$search}%")
+                  ->orWhere('apellido', 'LIKE', "%{$search}%");
+            })
+            ->orWhereHas('sala.sucursal', function ($q) use ($search) {
+                $q->where('nombre', 'LIKE', "%{$search}%");
+            })
+            ->orWhere('id_estado', 'LIKE', "%{$search}%");
+        }
+    
+        $turnos = $query->get();
+    
+        if (request()->ajax()) {
+            return view('partials.lista_turnos', compact('turnos'))->render();
+        }
+    
+        return view('nombre_de_tu_vista', compact('turnos'));
     }
-
+    }
+    

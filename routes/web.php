@@ -55,3 +55,5 @@
     Route::get('/detalle-ficha/{id}', DetalleFichaMedica::class)->name('fichaMedica.show');
     Route::get('/pacientes', Pacientes::class)->name('pacientes.index');
     Route::get('/turno/cancelar/{id}', [TurnoController::class, 'cancelarTurno'])->name('turno.cancelarTurno');
+    Route::get('/turno/revertir/{id}', [TurnoController::class, 'revertirTurno'])->name('turno.revertirTurno');
+    Route::get('/buscarpacienteprofesional', [TurnoController::class, 'buscarPacienteProfesional'])->name('buscarpacienteprofesional');
