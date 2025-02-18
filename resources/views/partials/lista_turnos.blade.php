@@ -27,7 +27,11 @@
                         <a href="{{ route('turno.revertirTurno', $turno->id) }}" class="btn-revertir">Revertir Cancelación</a>
                         <span class="estado-cancelado">Turno Cancelado</span>
                     @else
-                        <a href="{{ route('turno.cancelarTurno', $turno->id) }}" class="btn-cancelar">Cancelar Turno</a>
+                    <a href="{{ route('turno.cancelarTurno', $turno->id) }}" 
+                            class="btn-cancelar" 
+                            onclick="return confirm('¿Estás seguro de que deseas cancelar este turno?');">
+                            Cancelar Turno
+                    </a>
                     @endif
                 </td>
             </tr>
