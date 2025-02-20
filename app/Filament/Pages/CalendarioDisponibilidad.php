@@ -98,19 +98,34 @@ public function actualizarDisponibilidad()
 
     // Depuración: Verifica el contenido del arreglo
     logger('Datos a actualizar:', $this->disponibilidadSeleccionada);
-    // o en desarrollo: dd($this->disponibilidadSeleccionada);
     
     $model = Disponibilidad::find($this->disponibilidadSeleccionada['id']);
-    // Otra forma: llenar manualmente los campos para descartar problemas de asignación masiva
-    $model->id_sucursal   = $this->disponibilidadSeleccionada['id_sucursal'];
-    $model->id_sala       = $this->disponibilidadSeleccionada['id_sala'];
+    // Actualiza manualmente los campos
+    $model->id_sucursal    = $this->disponibilidadSeleccionada['id_sucursal'];
+    $model->id_sala        = $this->disponibilidadSeleccionada['id_sala'];
     $model->horario_inicio = $this->disponibilidadSeleccionada['horario_inicio'];
     $model->horario_fin    = $this->disponibilidadSeleccionada['horario_fin'];
     
+    try {
+        $model->save();
+    } catch (\Exception $e) {
+        logger('Error al guardar:', ['error' => $e->getMessage()]);
+        \Filament\Notifications\Notification::make()
+            ->title('Error al actualizar: ' . $e->getMessage())
+            ->danger()
+            ->send();
+        return;
+    }
 
     $this->mostrarModalEdicion = false;
     $this->cargarDisponibilidad();
+
+    \Filament\Notifications\Notification::make()
+        ->title('Disponibilidad actualizada correctamente')
+        ->success()
+        ->send();
 }
+
 
 
 
