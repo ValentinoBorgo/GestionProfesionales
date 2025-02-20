@@ -31,6 +31,10 @@ class Sucursal extends Model
     {
         return $this->hasMany(Salas::class, 'id_sucursal');
     }
+    public function disponibilidad()
+    {
+        return $this->hasMany(Disponibilidad::class, 'id_profesional');
+    }
 
 }
 

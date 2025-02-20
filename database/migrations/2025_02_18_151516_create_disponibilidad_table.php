@@ -11,7 +11,7 @@ class CreateDisponibilidadTable extends Migration
             $table->id();
             $table->unsignedBigInteger('id_sucursal');
             $table->unsignedBigInteger('id_sala');
-            $table->unsignedBigInteger('id_profesional');
+            $table->unsignedBigInteger('id_usuario');
             $table->enum('dia', ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']);
             $table->time('horario_inicio');
             $table->time('horario_fin');
@@ -29,9 +29,9 @@ class CreateDisponibilidadTable extends Migration
                   ->onDelete('cascade') 
                   ->onUpdate('cascade'); 
 
-            $table->foreign('id_profesional')
+            $table->foreign('id_usuario')
                   ->references('id')
-                  ->on('profesional')
+                  ->on('users')
                   ->onDelete('cascade') 
                   ->onUpdate('cascade'); 
         });

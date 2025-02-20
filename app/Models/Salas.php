@@ -21,4 +21,8 @@ class Salas extends Model
     {
         return $this->hasMany(Turno::class, 'id_sala');
     }
+    public function disponibilidad()
+    {
+        return $this->hasMany(Disponibilidad::class, 'id_profesional');
+    }
 }

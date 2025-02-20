@@ -62,7 +62,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Ausencias::class, 'id_usuario');
     }
-
+    public function disponibilidad()
+    {
+        return $this->hasMany(Disponibilidad::class, 'id_usuario');
+    }
     public function save(array $options = [])
     {
         $this->validateRoles();
