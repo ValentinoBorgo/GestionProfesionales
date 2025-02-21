@@ -23,7 +23,8 @@ class CalendarioDisponibilidad extends Page
     public $mostrarModalEdicion = false;
     public $disponibilidadSeleccionada = [];
     public $sucursales;
-    public $salas;
+    public $sucursalSeleccionada = '';
+    public $salaSeleccionada = '';
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -84,14 +85,11 @@ class CalendarioDisponibilidad extends Page
     {
         $model = Disponibilidad::find($id);
         $this->disponibilidadSeleccionada = $model->toArray();
-        
-        // Al editar, actualizamos las salas según la sucursal del registro
-        if (isset($this->disponibilidadSeleccionada['id_sucursal'])) {
-            $this->salas = Salas::where('id_sucursal', $this->disponibilidadSeleccionada['id_sucursal'])->get();
-        }
-        
+        $this->sucursalSeleccionada = $this->disponibilidadSeleccionada['id_sucursal'] ?? '';
+        $this->salaSeleccionada = $this->disponibilidadSeleccionada['id_sala'] ?? '';
         $this->mostrarModalEdicion = true;
     }
+    
 
     // Abre el modal para crear una nueva disponibilidad
     public function crearDisponibilidad()
@@ -102,22 +100,22 @@ class CalendarioDisponibilidad extends Page
             'id_sala'        => '',
             'horario_inicio' => '',
             'horario_fin'    => '',
-            'dia'            => '' // Aseguramos que esté en minúsculas
+            'dia'            => ''
         ];
-        // Reiniciamos las salas ya que aún no se ha seleccionado una sucursal
-        $this->salas = collect();
+        $this->sucursalSeleccionada = '';
+        $this->salaSeleccionada = '';
         $this->mostrarModalEdicion = true;
     }
     
-    // Actualiza las salas cuando se selecciona una sucursal
-    public function updatedDisponibilidadSeleccionadaIdSucursal($value)
-    {
-        $this->salas = Salas::where('id_sucursal', $value)->get();
-    }
+
 
     // Método para guardar (crear o actualizar)
     public function guardarDisponibilidad()
     {
+
+ // En el método guardarDisponibilidad
+$this->disponibilidadSeleccionada['id_sucursal'] = (int)$this->sucursalSeleccionada;
+$this->disponibilidadSeleccionada['id_sala'] = (int)$this->salaSeleccionada;
         $rules = [
             'disponibilidadSeleccionada.id_sucursal'  => 'required',
             'disponibilidadSeleccionada.id_sala'        => 'required',
@@ -160,12 +158,21 @@ class CalendarioDisponibilidad extends Page
         $this->mostrarModalEdicion = false;
         $this->cargarDisponibilidad();
     }
-
-    public function getSalasProperty()
-{
-    if (isset($this->disponibilidadSeleccionada['id_sucursal']) && $this->disponibilidadSeleccionada['id_sucursal']) {
-        return Salas::where('id_sucursal', $this->disponibilidadSeleccionada['id_sucursal'])->get();
+    public function getSalasListProperty()
+    {
+        if ($this->sucursalSeleccionada) {
+            return Salas::where('id_sucursal', $this->sucursalSeleccionada)->get();
+        }
+        return collect();
     }
-    return collect();
+// En tu componente PHP
+public function updatedSucursalSeleccionada($value)
+{
+    $this->salas = Salas::where('id_sucursal', $value)->get();
+    $this->salaSeleccionada = '';
 }
+    
+
+
+
 }

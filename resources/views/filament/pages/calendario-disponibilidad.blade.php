@@ -64,10 +64,10 @@
                     </div>
                 @endif
 
-                <!-- Selección de Sucursal -->
+<!-- Selección de Sucursal -->
 <div>
     <label class="block font-medium text-sm text-gray-700">Sucursal</label>
-    <select class="w-full border-gray-300 rounded" wire:model="disponibilidadSeleccionada.id_sucursal" required>
+    <select class="w-full border-gray-300 rounded" wire:model="sucursalSeleccionada" required>
         <option value="">Seleccione una sucursal</option>
         @foreach($sucursales as $sucursal)
             <option value="{{ $sucursal->id }}">{{ $sucursal->nombre }}</option>
@@ -78,13 +78,17 @@
 <!-- Selección de Sala -->
 <div>
     <label class="block font-medium text-sm text-gray-700">Sala</label>
-    <select class="w-full border-gray-300 rounded" wire:model="disponibilidadSeleccionada.id_sala" required>
+    <select class="w-full border-gray-300 rounded" wire:model="salaSeleccionada" required>
         <option value="">Seleccione una sala</option>
-        @foreach($this->salas as $sala)
+        @foreach($this->salasList as $sala)
             <option value="{{ $sala->id }}">{{ $sala->nombre }}</option>
         @endforeach
     </select>
 </div>
+
+
+
+
 
 
 
