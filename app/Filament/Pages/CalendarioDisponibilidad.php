@@ -5,10 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\Disponibilidad;
 use App\Models\Sucursal;
 use App\Models\Salas;
-use Filament\Forms;
 use Filament\Pages\Page;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TimePicker;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,13 +16,12 @@ class CalendarioDisponibilidad extends Page
 
     public $disponibilidad;
     public $fechasSemana = [];
-    public $idprofesional;
     public $diasSemana = [
         'lunes', 'martes', 'miercoles',
         'jueves', 'viernes', 'sabado', 'domingo'
     ];
     public $mostrarModalEdicion = false;
-    public $disponibilidadSeleccionada;
+    public $disponibilidadSeleccionada = [];
     public $sucursales;
     public $salas;
 
@@ -38,8 +34,15 @@ class CalendarioDisponibilidad extends Page
     {
         $this->cargarDisponibilidad();
         $this->generarRangoSemanal();
-        $this->sucursales = Sucursal::all();
-        $this->salas = Salas::all();
+
+        // Cargar solo las sucursales a las que pertenece el usuario
+        $this->sucursales = Sucursal::whereIn('id', function ($query) {
+            $query->select('id_sucursal')
+                  ->from('sucursal_usuario')
+                  ->where('id_usuario', Auth::id());
+        })->get();
+
+        $this->salas = collect();
     }
 
     protected function cargarDisponibilidad()
@@ -50,7 +53,7 @@ class CalendarioDisponibilidad extends Page
             ->get()
             ->groupBy('dia');
 
-        // Convertimos a colección explícitamente para evitar errores
+        // Forzamos a que sea una colección
         $this->disponibilidad = collect($this->disponibilidad);
     }
 
@@ -58,75 +61,111 @@ class CalendarioDisponibilidad extends Page
     {
         $now = Carbon::now();
         $startOfWeek = $now->startOfWeek(Carbon::MONDAY);
-
         for ($i = 0; $i < 7; $i++) {
             $this->fechasSemana[] = $startOfWeek->copy()->addDays($i);
         }
     }
-
     public function getHorariosDia($dia)
     {
         $horarios = $this->disponibilidad->get($dia, collect());
-
         return collect($horarios)->map(function ($item) {
             return [
-                'id' => $item->id,
+                'id'       => $item->id,
                 'sucursal' => optional($item->sucursal)->nombre,
-                'sala' => optional($item->sala)->nombre,
-                'inicio' => Carbon::parse($item->horario_inicio)->format('H:i'),
-                'fin' => Carbon::parse($item->horario_fin)->format('H:i')
+                'sala'     => optional($item->sala)->nombre,
+                'inicio'   => Carbon::parse($item->horario_inicio)->format('H:i'),
+                'fin'      => Carbon::parse($item->horario_fin)->format('H:i')
             ];
         });
     }
 
+    // Abre el modal para editar disponibilidad
     public function editarDisponibilidad($id)
-{
-    $model = Disponibilidad::find($id);
-    $this->disponibilidadSeleccionada = $model->toArray();
-    $this->mostrarModalEdicion = true;
-}
-
-
-public function actualizarDisponibilidad()
-{
-    $this->validate([
-        'disponibilidadSeleccionada.id_sucursal'  => 'required',
-        'disponibilidadSeleccionada.id_sala'        => 'required',
-        'disponibilidadSeleccionada.horario_inicio' => 'required|date_format:H:i',
-        'disponibilidadSeleccionada.horario_fin'    => 'required|date_format:H:i|after:disponibilidadSeleccionada.horario_inicio',
-    ]);
-
-    // Depuración: Verifica el contenido del arreglo
-    logger('Datos a actualizar:', $this->disponibilidadSeleccionada);
-    
-    $model = Disponibilidad::find($this->disponibilidadSeleccionada['id']);
-    // Actualiza manualmente los campos
-    $model->id_sucursal    = $this->disponibilidadSeleccionada['id_sucursal'];
-    $model->id_sala        = $this->disponibilidadSeleccionada['id_sala'];
-    $model->horario_inicio = $this->disponibilidadSeleccionada['horario_inicio'];
-    $model->horario_fin    = $this->disponibilidadSeleccionada['horario_fin'];
-    
-    try {
-        $model->save();
-    } catch (\Exception $e) {
-        logger('Error al guardar:', ['error' => $e->getMessage()]);
-        \Filament\Notifications\Notification::make()
-            ->title('Error al actualizar: ' . $e->getMessage())
-            ->danger()
-            ->send();
-        return;
+    {
+        $model = Disponibilidad::find($id);
+        $this->disponibilidadSeleccionada = $model->toArray();
+        
+        // Al editar, actualizamos las salas según la sucursal del registro
+        if (isset($this->disponibilidadSeleccionada['id_sucursal'])) {
+            $this->salas = Salas::where('id_sucursal', $this->disponibilidadSeleccionada['id_sucursal'])->get();
+        }
+        
+        $this->mostrarModalEdicion = true;
     }
 
-    $this->mostrarModalEdicion = false;
-    $this->cargarDisponibilidad();
+    // Abre el modal para crear una nueva disponibilidad
+    public function crearDisponibilidad()
+    {
+        logger('crearDisponibilidad disparado');
+        $this->disponibilidadSeleccionada = [
+            'id_sucursal'    => '',
+            'id_sala'        => '',
+            'horario_inicio' => '',
+            'horario_fin'    => '',
+            'dia'            => '' // Aseguramos que esté en minúsculas
+        ];
+        // Reiniciamos las salas ya que aún no se ha seleccionado una sucursal
+        $this->salas = collect();
+        $this->mostrarModalEdicion = true;
+    }
+    
+    // Actualiza las salas cuando se selecciona una sucursal
+    public function updatedDisponibilidadSeleccionadaIdSucursal($value)
+    {
+        $this->salas = Salas::where('id_sucursal', $value)->get();
+    }
 
-    \Filament\Notifications\Notification::make()
-        ->title('Disponibilidad actualizada correctamente')
-        ->success()
-        ->send();
+    // Método para guardar (crear o actualizar)
+    public function guardarDisponibilidad()
+    {
+        $rules = [
+            'disponibilidadSeleccionada.id_sucursal'  => 'required',
+            'disponibilidadSeleccionada.id_sala'        => 'required',
+            'disponibilidadSeleccionada.horario_inicio' => 'required|date_format:H:i',
+            'disponibilidadSeleccionada.horario_fin'    => 'required|date_format:H:i|after:disponibilidadSeleccionada.horario_inicio',
+        ];
+        // En creación, el campo "dia" es obligatorio
+        if (!isset($this->disponibilidadSeleccionada['id'])) {
+            $rules['disponibilidadSeleccionada.dia'] = 'required|in:lunes,martes,miercoles,jueves,viernes,sabado,domingo';
+        }
+        $this->validate($rules);
+
+        if (isset($this->disponibilidadSeleccionada['id'])) {
+            // Actualizar registro existente
+            $model = Disponibilidad::find($this->disponibilidadSeleccionada['id']);
+            $model->id_sucursal    = $this->disponibilidadSeleccionada['id_sucursal'];
+            $model->id_sala        = $this->disponibilidadSeleccionada['id_sala'];
+            $model->horario_inicio = $this->disponibilidadSeleccionada['horario_inicio'];
+            $model->horario_fin    = $this->disponibilidadSeleccionada['horario_fin'];
+            $model->save();
+            \Filament\Notifications\Notification::make()
+                ->title('Disponibilidad actualizada correctamente')
+                ->success()
+                ->send();
+        } else {
+            // Crear un nuevo registro
+            Disponibilidad::create([
+                'id_sucursal'    => $this->disponibilidadSeleccionada['id_sucursal'],
+                'id_sala'        => $this->disponibilidadSeleccionada['id_sala'],
+                'horario_inicio' => $this->disponibilidadSeleccionada['horario_inicio'],
+                'horario_fin'    => $this->disponibilidadSeleccionada['horario_fin'],
+                'dia'            => $this->disponibilidadSeleccionada['dia'],
+                'id_usuario'     => Auth::id(),
+            ]);
+            \Filament\Notifications\Notification::make()
+                ->title('Disponibilidad creada correctamente')
+                ->success()
+                ->send();
+        }
+        $this->mostrarModalEdicion = false;
+        $this->cargarDisponibilidad();
+    }
+
+    public function getSalasProperty()
+{
+    if (isset($this->disponibilidadSeleccionada['id_sucursal']) && $this->disponibilidadSeleccionada['id_sucursal']) {
+        return Salas::where('id_sucursal', $this->disponibilidadSeleccionada['id_sucursal'])->get();
+    }
+    return collect();
 }
-
-
-
-
 }
