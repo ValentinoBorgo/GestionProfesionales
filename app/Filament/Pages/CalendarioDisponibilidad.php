@@ -25,7 +25,6 @@ class CalendarioDisponibilidad extends Page
     public $sucursales;
     public $sucursalSeleccionada = '';
     public $salaSeleccionada = '';
-
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()->roles->pluck('nombre')->contains('ROLE_PROFESIONAL');
@@ -91,7 +90,6 @@ class CalendarioDisponibilidad extends Page
     }
     
 
-    // Abre el modal para crear una nueva disponibilidad
     public function crearDisponibilidad()
     {
         logger('crearDisponibilidad disparado');
@@ -102,7 +100,8 @@ class CalendarioDisponibilidad extends Page
             'horario_fin'    => '',
             'dia'            => ''
         ];
-        $this->sucursalSeleccionada = '';
+        // Evitamos resetear la sucursal si queremos probar la reactividad
+        // $this->sucursalSeleccionada = '';
         $this->salaSeleccionada = '';
         $this->mostrarModalEdicion = true;
     }
@@ -158,19 +157,27 @@ $this->disponibilidadSeleccionada['id_sala'] = (int)$this->salaSeleccionada;
         $this->mostrarModalEdicion = false;
         $this->cargarDisponibilidad();
     }
+    public function updatedSucursalSeleccionada($value)
+    {
+        $this->sucursalSeleccionada = $value;
+        $this->salas = $this->getSalasListProperty(); // Actualizar la propiedad salas
+    }
+
     public function getSalasListProperty()
     {
-        if ($this->sucursalSeleccionada) {
-            return Salas::where('id_sucursal', $this->sucursalSeleccionada)->get();
-        }
-        return collect();
+        return $this->sucursalSeleccionada
+            ? Salas::where('id_sucursal', $this->sucursalSeleccionada)->get()
+            : collect();
     }
-// En tu componente PHP
-public function updatedSucursalSeleccionada($value)
-{
-    $this->salas = Salas::where('id_sucursal', $value)->get();
-    $this->salaSeleccionada = '';
-}
+    public function actualizarSucursal($value)
+    {
+        logger('actualizarSucursal: ' . $value);
+        $this->sucursalSeleccionada = $value;
+    }
+    
+
+
+
     
 
 

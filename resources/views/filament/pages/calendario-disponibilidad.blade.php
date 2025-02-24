@@ -67,31 +67,28 @@
 <!-- Selección de Sucursal -->
 <div>
     <label class="block font-medium text-sm text-gray-700">Sucursal</label>
-    <select class="w-full border-gray-300 rounded" wire:model="sucursalSeleccionada" required>
-        <option value="">Seleccione una sucursal</option>
-        @foreach($sucursales as $sucursal)
-            <option value="{{ $sucursal->id }}">{{ $sucursal->nombre }}</option>
-        @endforeach
-    </select>
+    <select class="w-full border-gray-300 rounded" wire:change="actualizarSucursal($event.target.value)" required>
+    <option value="">Seleccione una sucursal</option>
+    @foreach($sucursales as $sucursal)
+         <option value="{{ $sucursal->id }}">{{ $sucursal->nombre }}</option>
+    @endforeach
+</select>
 </div>
 
 <!-- Selección de Sala -->
 <div>
     <label class="block font-medium text-sm text-gray-700">Sala</label>
-    <select class="w-full border-gray-300 rounded" wire:model="salaSeleccionada" required>
-        <option value="">Seleccione una sala</option>
-        @foreach($this->salasList as $sala)
-            <option value="{{ $sala->id }}">{{ $sala->nombre }}</option>
-        @endforeach
-    </select>
+    <select class="w-full border-gray-300 rounded" wire:change="actualizarSala($event.target.value)" required>
+    <option value="">Seleccione una sala</option>
+    @foreach($this->salasList as $sala)
+        <option value="{{ $sala->id }}">{{ $sala->nombre }}</option>
+    @endforeach
+</select>
+
+    <div>
 </div>
 
-
-
-
-
-
-
+</div>
                 <!-- Hora de inicio -->
                 <div>
                     <label class="block font-medium text-sm text-gray-700">Hora de inicio</label>
@@ -109,7 +106,7 @@
                 <button style="background-color: #007bff;" type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                     Guardar cambios
                 </button>
-            </div>
+            </div>  
         </form>
     </div>
 </div>
