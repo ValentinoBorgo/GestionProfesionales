@@ -10,9 +10,13 @@ class FichaMedicaController extends Controller
 {
     public function verPacientes()
     {
-        $fichasMedicas = FichaMedica::all();
-        return view('secretario.ver-pacientes', compact('fichasMedicas'));
+        // Esto devuelve una colección, aunque no tenga resultados, nunca es null.
+        $fichasMedicas = FichaMedica::all(); 
+        return view('filament.pages.ver-pacientes', compact('fichasMedicas'));
     }
+    
+
+
 
     public function editarFicha($id)
     {
@@ -71,7 +75,6 @@ class FichaMedicaController extends Controller
 {
     $user = auth()->user();
     $query = FichaMedica::query();
-
     // Filtrar por profesional o secretario logueado
     if ($user->profesional) {
         $profesionalId = $user->profesional->id;
@@ -102,4 +105,42 @@ class FichaMedicaController extends Controller
 
     return view('nombre_de_tu_vista', compact('fichasMedicas'));
 }
+
+public function buscarFichasMedicasSecretario(Request $request)
+{
+    $user = auth()->user();
+    $query = FichaMedica::query();
+    // Filtrar por profesional o secretario logueado
+    if ($user->profesional) {
+        $profesionalId = $user->profesional->id;
+        $turnos = Turno::where('id_profesional', $profesionalId)->with('paciente')->get();
+        $pacientes = $turnos->pluck('paciente')->unique();
+        $query->whereIn('id', $pacientes->pluck('id_ficha_medica'));
+    } elseif ($user->secretario) {
+        $secretarioId = $user->secretario->id;
+        $turnos = Turno::where('id_secretario', $secretarioId)->with('paciente')->get();
+        $pacientes = $turnos->pluck('paciente')->unique();
+        $query->whereIn('id', $pacientes->pluck('id_ficha_medica'));
+    }
+
+    // Búsqueda por nombre o apellido
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('nombre', 'LIKE', "%{$search}%")
+              ->orWhere('apellido', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $fichasMedicas = $query->get();
+
+    if ($request->ajax()) {
+        return view('partials.lista_fichas_paciente', compact('fichasMedicas'))->render();
+    }
+
+    return view('nombre_de_tu_vista', compact('fichasMedicas'));
 }
+
+
+}
+

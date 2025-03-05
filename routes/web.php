@@ -59,3 +59,4 @@
     Route::get('/buscarpacienteprofesional', [TurnoController::class, 'buscarPacienteProfesional'])->name('buscarpacienteprofesional');
     Route::get('/buscar-fichas-medicas', [FichaMedicaController::class, 'buscarFichasMedicas'])
     ->name('buscarFichasMedicas');
+    Route::get('/buscar-paciente-secretario', [TurnoController::class, 'buscarPacienteSecretario'])->name('buscarpacientesecretario');

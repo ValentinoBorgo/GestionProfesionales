@@ -6,6 +6,7 @@ use App\Models\EstadoTurno;
 use App\Models\TipoTurno;
 use App\Models\Salas;
 use App\Models\Sucursal;
+use App\Models\Ausencias;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -179,4 +180,46 @@ class TurnoService
      }
      return $secretario;
  }
+
+ public function validarDisponibilidadProfesional($idProfesional, \DateTime $horaFecha)
+{
+    // Busca al profesional y obtén su id_persona (que se usa en disponibilidad)
+    $profesional = \App\Models\Profesional::find($idProfesional);
+    if (!$profesional) {
+        throw ValidationException::withMessages([
+            'id_profesional' => 'Profesional no encontrado.',
+        ]);
+    }
+    $idPersona = $profesional->id_persona;
+    
+
+    $diaEnglish = $horaFecha->format('l'); 
+    $dias = [
+        'Monday'    => 'lunes',
+        'Tuesday'   => 'martes',
+        'Wednesday' => 'miercoles',
+        'Thursday'  => 'jueves',
+        'Friday'    => 'viernes',
+        'Saturday'  => 'sabado',
+        'Sunday'    => 'domingo',
+    ];
+    $dia = strtolower($dias[$diaEnglish]);
+    
+
+    $horaTurno = $horaFecha->format('H:i:s');
+
+
+    $disponibilidad = \App\Models\Disponibilidad::where('id_usuario', $idPersona)
+        ->where('dia', $dia)
+        ->where('horario_inicio', '<=', $horaTurno)
+        ->where('horario_fin', '>=', $horaTurno)
+        ->first();
+
+    if (!$disponibilidad) {
+        throw ValidationException::withMessages([
+            'hora_fecha' => 'El profesional no tiene disponibilidad en la fecha y hora seleccionada.',
+        ]);
+    }
+}
+
 }

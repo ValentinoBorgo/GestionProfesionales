@@ -41,8 +41,16 @@ class ModificarTurno extends Page
     public function mount($id)
     {
         $this->turno = Turno::findOrFail($id);
-        $this->form->fill($this->turno->toArray());
+        $data = $this->turno->toArray();
+    
+        // Si se envía 'id_profesional' en la query, se usa ese valor
+        if (request()->has('id_profesional')) {
+            $data['id_profesional'] = request()->get('id_profesional');
+        }
+        
+        $this->form->fill($data);
     }
+    
 
     public function form(Form $form): Form
     { 
@@ -57,19 +65,24 @@ class ModificarTurno extends Page
                 return !in_array($get('id_estado'), [$CANCELADO_CLIENTE, $CANCELADO_PROFESIONAL]);
             }),
             Select::make('id_profesional')
-                ->label('Profesional')
-                ->options(
-                    User::where('id_tipo', 3)
-                        ->with('profesional')
-                        ->get()
-                        ->mapWithKeys(function ($user) {
-                            return [
-                                $user->profesional->id => $user->name . ' ' . $user->apellido,
-                            ];
-                        })
-                )
-                ->default($this->turno->id_profesional)
-                ->required(),
+    ->label('Profesional')
+    ->searchable()
+    ->extraAttributes([
+        'x-on:change' => 'window.location = updateQueryStringParameter(window.location.href, "id_profesional", $event.target.value)'
+    ])
+    ->options(
+        User::where('id_tipo', 3)
+            ->with('profesional')
+            ->get()
+            ->mapWithKeys(function ($user) {
+                return [
+                    $user->profesional->id => $user->name . ' ' . $user->apellido,
+                ];
+            })
+    )
+    ->default(request()->has('id_profesional') ? request()->get('id_profesional') : $this->turno->id_profesional)
+    ->required(),
+
             Select::make('id_paciente')
                 ->label('Paciente')
                 ->options(Paciente::with('fichaMedica')->get()->pluck('fichaMedica.nombre', 'id'))
@@ -96,6 +109,7 @@ class ModificarTurno extends Page
             $this->turnoService->validarHorarioSucursal($horaFecha, $secretario);
             $this->turnoService->disponibilidadProfesional($this->data['id_profesional'], $horaFecha, $this->turno->id, $this->data['id_estado']);
             $this->turnoService->ausenciaProfesional($this->data['id_profesional'], $horaFecha);
+            $this->turnoService->validarDisponibilidadProfesional($data['id_profesional'], $horaFecha);
             $sala = $this->turnoService->getSalaDisponible($horaFecha, $this->data['id_tipo_turno'], $secretario, $this->turno->id, $this->data['id_estado']);
 
             $this->turno->update([

@@ -298,5 +298,42 @@ class TurnoController extends Controller
 
     return view('nombre_de_tu_vista', compact('turnos'));
 }
+
+public function buscarPacienteSecretario(Request $request)
+{
+    $query = Turno::query();
+
+    // Búsqueda por secretario, profesional, paciente y sucursal
+    if ($request->has('search')) {
+        $search = $request->input('search');
+
+        $query->where(function($q) use ($search) {
+            $q->whereHas('paciente.fichaMedica', function ($q2) use ($search) {
+                $q2->where('ficha_medica.nombre', 'LIKE', "%{$search}%")
+                   ->orWhere('ficha_medica.apellido', 'LIKE', "%{$search}%");
+            })
+            ->orWhereHas('sala.sucursal', function ($q3) use ($search) {
+                $q3->where('sucursal.nombre', 'LIKE', "%{$search}%");
+            })
+            ->orWhereHas('secretario.usuario', function ($q4) use ($search) {
+                $q4->where('name', 'LIKE', "%{$search}%")
+                   ->orWhere('apellido', 'LIKE', "%{$search}%");
+            })
+            ->orWhereHas('profesional.persona', function ($q5) use ($search) {
+                $q5->where('name', 'LIKE', "%{$search}%")
+                   ->orWhere('apellido', 'LIKE', "%{$search}%");
+            })
+            ->orWhere('id_estado', 'LIKE', "%{$search}%");
+        });
     }
-    
+
+    $turnos = $query->get();
+
+    // Retorna la vista parcial con los resultados actualizados
+    return view('partials.lista_turnos_secretario', compact('turnos'));
+}
+
+
+
+}
+

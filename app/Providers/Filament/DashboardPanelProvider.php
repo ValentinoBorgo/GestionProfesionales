@@ -17,6 +17,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\Widgets\CalendarWidget;
+use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 
 class DashboardPanelProvider extends PanelProvider
 {
@@ -56,6 +58,14 @@ class DashboardPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
+            ->plugin(
+                FilamentFullCalendarPlugin::make()
+                    ->selectable()
+                    ->editable()
+                    ->schedulerLicenseKey('GPL-My-Project-Is-Open-Source')
+                    ->timezone('America/Argentina/Buenos_Aires')
+                    ->locale('es')
+            )
             ->navigationItems($navigationItems) // Usar la lista construida
             ->middleware([
                 EncryptCookies::class,

@@ -1,6 +1,5 @@
 <x-filament::page>
     <style>
-        <style>
         table {
             width: 100%;
             border-collapse: collapse;
@@ -46,17 +45,37 @@
         .btn-gestion:active {
             background-color: #1e7e34;
         }
+
+        /* Estilos para el input de búsqueda */
+        .search-input {
+            padding: 8px;
+            width: 100%;
+
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            
+        }
+
+        /* Contenedor para el input y botón */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
     </style>
-
-    <h1 style="margin-bottom: 1rem;">Listado de Pacientes</h1>
-    <!-- Tabla de pacientes -->
+    <!-- Botón para dar de alta paciente -->
     <div style="margin-bottom: 1rem;">
-    <a href="{{ \App\Filament\Pages\DarAltaPaciente::getUrl() }}" class="btn-gestion">
-    Dar de Alta Paciente
-    </a>
+        <a href="{{ \App\Filament\Pages\DarAltaPaciente::getUrl() }}" class="btn-gestion">
+            Dar de Alta Paciente
+        </a>
     </div>
-    <h2>Pacientes Registrados</h2>
 
+    <!-- Barra de búsqueda -->
+    <div class="search-container">
+        <input type="text" wire:model="search" placeholder="Buscar paciente..." class="search-input">
+        <button wire:click="buscar" class="btn-gestion">Buscar</button>
+    </div>
     <div style="overflow-x: auto; width: 100%; margin-top: 1rem;">
         <table>
             <thead>
@@ -75,7 +94,7 @@
                     <th>Persona Responsable</th>
                     <th>Vínculo</th>
                     <th>Tel. Responsable</th>
-                    <th>Editar Ficha Médica</th> <!-- Nueva columna -->
+                    <th>Editar Ficha Médica</th>
                 </tr>
             </thead>
             <tbody>
@@ -96,13 +115,16 @@
                         <td>{{ $fichaMedica->vinculo }}</td>
                         <td>{{ $fichaMedica->telefono_persona_responsable }}</td>
                         <td>
-                            <!-- Enlace para editar la ficha médica -->
-                            <a href="{{ route('filament.editar-ficha', ['id' => $fichaMedica->id]) }}" class="btn-accion">Editar</a>
+                            <a href="{{ route('filament.editar-ficha', ['id' => $fichaMedica->id]) }}" class="btn-accion">
+                                Editar
+                            </a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="14" style="text-align: center; padding: 1rem;">No hay pacientes registrados.</td>
+                        <td colspan="15" style="text-align: center; padding: 1rem;">
+                            No hay pacientes registrados.
+                        </td>
                     </tr>
                 @endforelse
             </tbody>

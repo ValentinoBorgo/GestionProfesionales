@@ -14,16 +14,34 @@ class VerPacientes extends Page
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
-        return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_SECRETARIO'])) ? true : false;
+        return $user->roles->pluck('nombre')->contains(fn ($role) => in_array($role, ['ROLE_SECRETARIO']));
     }
 
     public $pacientes;
+    public $search = '';
 
     public function mount()
     {
-        // Cargamos los pacientes con sus datos relacionados
-        $this->pacientes = FichaMedica::with([
-            'paciente', // Datos adicionales del paciente
-        ])->get();
+        $this->loadPacientes();
+    }
+
+    // Método invocado al hacer clic en el botón "Buscar"
+    public function buscar()
+    {
+        logger("Buscando pacientes con: " . $this->search);
+        $this->loadPacientes();
+    }
+
+    protected function loadPacientes()
+    {
+        $this->pacientes = FichaMedica::with('paciente')
+            ->when($this->search, function ($query) {
+                $query->whereHas('paciente', function ($q) {
+                    $q->where('nombre', 'like', '%' . $this->search . '%')
+                      ->orWhere('apellido', 'like', '%' . $this->search . '%')
+                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->get();
     }
 }
