@@ -12,6 +12,15 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use App\Filament\Resources\SucursalResource;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Placeholder;
+use Illuminate\Support\HtmlString;
+use Filament\Forms\Components\Hidden;
 
 class UserResource extends Resource
 {
@@ -128,13 +137,122 @@ class UserResource extends Resource
                                 $set('titulo', $profesional->titulo);
                             }
                         }
-                    }),            
-                Forms\Components\Select::make('sucursales')
-                    ->relationship('sucursales', 'nombre') // acordarse acer q muestre todas las
+                    }),
+                    Forms\Components\Select::make('sucursales')
+                    ->relationship('sucursales', 'nombre')
                     ->label('Sucursal')
                     ->preload()
                     ->multiple()
-                    ->searchable(),
+                    ->searchable()
+                    ->reactive(), // <- Hacerlo reactivo para detectar cambios
+                
+                Fieldset::make('Horario Completo de Trabajo')
+                    ->schema([
+                        Radio::make('dias_semana')
+                        ->label('Días disponibles')
+                        ->options([
+                            'lunes'     => 'Lunes',
+                            'martes'    => 'Martes',
+                            'miercoles' => 'Miércoles',
+                            'jueves'    => 'Jueves',
+                            'viernes'   => 'Viernes',
+                        ])
+                        ->inline(),
+                    
+                
+                        TimePicker::make('hora_entrada')
+                            ->label('Hora de entrada'),
+                
+                        TimePicker::make('hora_salida')
+                            ->label('Hora de salida'),
+                
+                        Select::make('sala')
+                            ->label('Sala')
+                            ->options(function (callable $get) {
+                                $sucursalId = $get('sucursales');
+                
+                                if (!$sucursalId) {
+                                    return [];
+                                }
+                
+                                return \App\Models\Salas::whereIn('id_sucursal', (array) $sucursalId)
+                                    ->pluck('nombre', 'id')
+                                    ->toArray();
+                            })
+                            ->reactive()
+                            ->placeholder('Seleccione una sala'),
+                
+                        Placeholder::make('boton_guardar')
+                            ->disableLabel()
+                            ->content(new HtmlString(
+                                '<button type="button" wire:click="guardarHorario" style="padding: 0.5rem 1rem; background-color: #2563EB; color: #ffffff; border: none; border-radius: 0.25rem;">Guardar Horario</button>'
+                            )),
+                
+                        Hidden::make('horarios_guardados'),
+                    ])
+                    ->visible(function (callable $get) {
+                        $tipoSeleccionado = $get('id_tipo');
+                        if (!$tipoSeleccionado) {
+                            return false;
+                        }
+                        $tipoPersona = \App\Models\TipoPersona::find($tipoSeleccionado);
+                        return $tipoPersona && $tipoPersona->tipo === 'PROFESIONAL';
+                    }),
+                    Placeholder::make('lista_horarios')
+                    ->disableLabel()
+                    ->content(function (callable $get, callable $set, $livewire) {
+                        $horarios = $get('horarios_guardados') ?? [];
+                        $error = $livewire->getErrorBag()->first('horarios_guardados');
+                        $isEditing = $livewire instanceof \App\Filament\Resources\UserResource\Pages\EditUser;
+                
+                        $html = '';
+                
+                        if ($error) {
+                            $html .= '<p style="color: red; font-weight: bold;">' . $error . '</p>';
+                        }
+                
+                        if (empty($horarios)) {
+                            $html .= '<p>No hay horarios guardados.</p>';
+                        } else {
+                            $html .= '<h4>Listado de Horarios</h4>';
+                            $html .= '<ul style="list-style: none; padding: 0;">';
+                            foreach ($horarios as $index => $horario) {
+                                $dias = is_array($horario['dias_semana']) ? implode(', ', $horario['dias_semana']) : $horario['dias_semana'];
+                                $html .= '<li style="margin-bottom: 0.5rem; padding: 0.5rem; border: 1px solid #e5e7eb; border-radius: 0.25rem; display: flex; justify-content: space-between; align-items: center;">';
+                                $html .= '<div>';
+                                $html .= '<strong>Días:</strong> ' . $dias . ' | ';
+                                $html .= '<strong>Entrada:</strong> ' . $horario['hora_entrada'] . ' | ';
+                                $html .= '<strong>Salida:</strong> ' . $horario['hora_salida'] . ' | ';
+                                $html .= '<strong>Sala:</strong> ' . $horario['sala'];
+                                $html .= '</div>';
+                                
+                                $html .= '<button type="button" wire:click="eliminarHorario(' . $index . ')" wire:confirm="¿Estás seguro de que deseas eliminar este horario?"
+                                    style="padding: 0.3rem 0.6rem; background-color: red; color: white; border: none; border-radius: 0.25rem; cursor: pointer;">
+                                    ❌ Eliminar
+                                </button>';
+
+                                if ($isEditing) {
+                                    $html .= '<button type="button" wire:click="editarHorario(' . $index . ')" 
+                                        style="padding: 0.3rem 0.6rem; background-color: orange; color: white; border: none; border-radius: 0.25rem; cursor: pointer; margin-left: 0.5rem;">
+                                        ✏️ Editar
+                                    </button>';
+                                }
+                
+                                $html .= '</li>';
+                            }
+                            $html .= '</ul>';
+                        }
+                
+                        return new HtmlString($html);
+                    })
+                    ->visible(function (callable $get) {
+                        $tipoSeleccionado = $get('id_tipo');
+                        if (!$tipoSeleccionado) {
+                            return false;
+                        }
+                        $tipoPersona = \App\Models\TipoPersona::find($tipoSeleccionado);
+                        return $tipoPersona && $tipoPersona->tipo === 'PROFESIONAL';
+                    }),                
                 Forms\Components\TextInput::make('nombre_usuario')
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
