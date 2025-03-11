@@ -32,6 +32,7 @@ class DisponibilidadService
 
     public function verificarHorarioPorProfesional(array $sucursalIds, array $horarios, $profesionalId = null)
     {
+        
         $sucursalIds = array_map('intval', $sucursalIds);
 
         // foreach ($sucursalIds as $sucursalId) {
@@ -40,14 +41,7 @@ class DisponibilidadService
         foreach ($horarios as $horario) {
             $salaId = intval($horario['idSala']) ?? null;
     
-            // $sala = Salas::where('id', $salaId)
-            //              ->where('id_sucursal', $sucursal->id)
-            //              ->first();
-    
-            // if (!$sala) {
-            //     return ['error' => 'La sala no pertenece a las sucursales proporcionadas.', 'horario' => $horario];
-            // }
-    
+            dd($sucursalIds);
             $disponibilidad = Disponibilidad::whereIn('id_sucursal', $sucursalIds)
                 ->where('id_sala', $salaId)
                 ->where('dia', $horario['dias_semana'])
@@ -72,9 +66,10 @@ class DisponibilidadService
 
     public function verificarHorarioAperturaCierrePorSucursal(array $sucursalIds, array $horarios)
     {
+        //  dd($horarios);
         foreach ($sucursalIds as $sucursalId) {
         $sucursal = Sucursal::find($sucursalId);
-
+        
         if (!$sucursal) {
             $resultados[$sucursalId] = [
                 'error' => 'La sucursal con ID ' . $sucursalId . ' no fue encontrada.'
@@ -86,9 +81,10 @@ class DisponibilidadService
         $horarioApertura = Carbon::createFromFormat('H:i:s', $sucursal->horario_apertura);
         $horarioCierre = Carbon::createFromFormat('H:i:s', $sucursal->horario_cierre);
     
+        // dd($horarioApertura, $horarioCierre);
         foreach ($horarios as $horario) {
-            $horaEntrada = Carbon::createFromFormat('H:i:s', $horario['hora_entrada']);
-            $horaSalida = Carbon::createFromFormat('H:i:s', $horario['hora_salida']);
+            $horaEntrada = Carbon::createFromFormat('H:i:s', $horario['hora_entrada'])->addSeconds(0);
+            $horaSalida = Carbon::createFromFormat('H:i:s', $horario['hora_salida'])->addSeconds(0);
     
             // Caso 1: Hora de entrada antes del horario de apertura
             if ($horaEntrada->lessThan($horarioApertura)) {

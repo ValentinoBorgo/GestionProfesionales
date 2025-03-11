@@ -62,7 +62,7 @@ class UserResource extends Resource
                 Forms\Components\TextInput::make('telefono')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\DateTimePicker::make('fecha_nac')
+                Forms\Components\DatePicker::make('fecha_nac')
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(function ($state, callable $set) {
@@ -161,9 +161,11 @@ class UserResource extends Resource
                     
                 
                         TimePicker::make('hora_entrada')
+         
                             ->label('Hora de entrada'),
                 
                         TimePicker::make('hora_salida')
+
                             ->label('Hora de salida'),
                 
                         Select::make('sala')
@@ -262,7 +264,8 @@ class UserResource extends Resource
                     ->preload()
                     ->multiple()
                     ->required(),
-                Forms\Components\DateTimePicker::make('email_verified_at'),
+                Forms\Components\DatePicker::make('email_verified_at')
+                    ->seconds(false),
                 Forms\Components\Toggle::make('editar_password')
                 ->label('Editar contraseña')
                 ->reactive() // Hace que sea reactivo
