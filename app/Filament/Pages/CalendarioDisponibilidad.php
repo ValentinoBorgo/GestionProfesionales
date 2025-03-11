@@ -35,9 +35,7 @@ class CalendarioDisponibilidad extends Page
         return auth()->user()->roles->pluck('nombre')->contains('ROLE_PROFESIONAL');
     }
 
-    /* =========================================================================
-       Métodos de Inicialización y Carga de Datos
-    ========================================================================= */
+
 
     // esto se ejecuta cuando el componente se "monta"
     public function mount()
@@ -98,9 +96,8 @@ class CalendarioDisponibilidad extends Page
         $this->todasLasDisponibilidades = collect($this->todasLasDisponibilidades);
     }
 
-    /* =========================================================================
-       Métodos Auxiliares (Getters)
-    ========================================================================= */
+
+    // getssssssssssssssssssssssssssssssssssssssssssssssssssssssss
 
     // retorna los horarios asignados a un día específico
     public function getHorariosDia($dia)
@@ -149,42 +146,34 @@ class CalendarioDisponibilidad extends Page
 
     public function getHorariosDisponiblesFiltradosProperty()
     {
-        // Lista base de horarios según la sucursal (o un rango por defecto)
         $horarios = $this->horariosList;
-    
-        // Se obtiene el día seleccionado
-        $dia = $this->disponibilidadSeleccionada['dia'] ?? null;
+        
+        // tenemos el día en minúsculas
+        $dia = strtolower(trim($this->disponibilidadSeleccionada['dia'] ?? ''));
         if (!$dia) {
             return $horarios;
         }
-    
-        // Obtener sucursal y sala seleccionados
+        
+        // sala y sucursal seleccionados
         $sucursalId = $this->sucursalSeleccionada;
         $salaId = $this->salaSeleccionada;
-    
-        // Para el profesional logueado: obtenemos sus disponibilidades para ese día, EXCLUYENDO la disponibilidad que se está editando (si existe)
-        $queryProfesional = Disponibilidad::where('dia', $dia)
-            ->where('id_usuario', Auth::id());
-        if (!empty($this->disponibilidadSeleccionada['id'])) {
-            $queryProfesional->where('id', '!=', $this->disponibilidadSeleccionada['id']);
-        }
-        $disponibilidadesDelDiaDelProfesional = $queryProfesional->get();
-    
-        // Para otros profesionales: obtenemos las disponibilidades para ese día, sucursal y sala
-        $disponibilidadesDelDiaOtrosProfesionales = Disponibilidad::where('dia', $dia)
+        
+        // consulta  lower para minusculas a veces no anda filament de ireda TODAS las disponibilidades para ese día, sucursal y sala
+        $disponibilidadesDelDia = Disponibilidad::withoutGlobalScopes()
+            ->whereRaw('LOWER(dia) = ?', [$dia])
             ->where('id_sucursal', $sucursalId)
             ->where('id_sala', $salaId)
-            ->where('id_usuario', '!=', Auth::id())
+            ->when(!empty($this->disponibilidadSeleccionada['id']), function ($query) {
+                $query->where('id', '!=', $this->disponibilidadSeleccionada['id']);
+            })
             ->get();
-    
-        // Combinar ambas colecciones
-        $disponibilidadesDelDia = $disponibilidadesDelDiaDelProfesional->merge($disponibilidadesDelDiaOtrosProfesionales);
-    
-        // Filtrar los horarios disponibles: descartar aquellos que se solapen con alguna disponibilidad registrada
+        
+        logger("disponibilidadesDelDia (todos): " . json_encode($disponibilidadesDelDia));
+        
+        // filtro delos horarios que se ponen uno arriba de otrocon alguno de esos registros
         $horariosFiltrados = array_filter($horarios, function ($horaSlot) use ($disponibilidadesDelDia) {
             $hora = Carbon::createFromFormat('H:i', $horaSlot);
             foreach ($disponibilidadesDelDia as $disp) {
-                // Se asume que en la base los tiempos vienen en formato H:i:s
                 $inicio = Carbon::createFromFormat('H:i:s', $disp->horario_inicio);
                 $fin = Carbon::createFromFormat('H:i:s', $disp->horario_fin);
                 if ($hora->between($inicio, $fin, true)) {
@@ -193,71 +182,72 @@ class CalendarioDisponibilidad extends Page
             }
             return true;
         });
-    
+        
         return array_values($horariosFiltrados);
     }
     
+    
+    
 
 
 
-public function getHorariosFinProperty()
-{
-    // Si no se ha seleccionado una hora de inicio, devolvemos el rango completo.
-    $horaInicio = trim($this->disponibilidadSeleccionada['horario_inicio'] ?? '');
-    if (!$horaInicio) {
-        return $this->getHorariosListProperty();
-    }
-    // Extraemos solo la parte "H:i"
-    $horaInicio = substr($horaInicio, 0, 5);
-    $startTime = Carbon::createFromFormat('H:i', $horaInicio);
-    
-    // Obtener el día (debe ser consistente con lo que guardás, por ejemplo "martes")
-    $dia = trim($this->disponibilidadSeleccionada['dia'] ?? '');
-    if (!$dia) {
-        return $this->getHorariosListProperty();
-    }
-    
-    // (En creación, para el límite ignoramos sucursal y sala, ya que la disponibilidad del usuario debe bloquear esa franja)
-    $horarios = $this->getHorariosListProperty();
-    
-    if (!empty($this->disponibilidadSeleccionada['id'])) {
-        // En edición: usamos el horario_fin actual del registro
-        $horarioFinStr = trim($this->disponibilidadSeleccionada['horario_fin'] ?? '');
-        $horarioFinStr = substr($horarioFinStr, 0, 5);
-        $limit = Carbon::createFromFormat('H:i', $horarioFinStr);
-    } else {
-        // En creación: buscamos la próxima disponibilidad del usuario para ese día (sin importar sucursal o sala)
-        $nextAvailability = Disponibilidad::where('dia', $dia)
-            ->where('id_usuario', Auth::id())
+    public function getHorariosFinProperty()
+    {
+        // si no se ha seleccionado una hora de inicio, devolvemos la lista completa.
+        $horaInicio = trim($this->disponibilidadSeleccionada['horario_inicio'] ?? '');
+        if (!$horaInicio) {
+            return $this->getHorariosListProperty();
+        }
+        
+        $horaInicio = substr($horaInicio, 0, 5);
+        $startTime = Carbon::createFromFormat('H:i', $horaInicio);
+        
+        // dias a minusculas o no anda esta mierda
+        $dia = strtolower(trim($this->disponibilidadSeleccionada['dia'] ?? ''));
+        if (!$dia) {
+            return $this->getHorariosListProperty();
+        }
+        
+        //lista base de horarios (según la sucursal)
+        $horarios = $this->getHorariosListProperty();
+        
+        // determinar el limit, consultamos TODAS las disponibilidades para ese día, sucursal y sala
+        $disponibilidadQuery = Disponibilidad::withoutGlobalScopes()
+            ->whereRaw('LOWER(dia) = ?', [$dia])
+            ->where('id_sucursal', $this->sucursalSeleccionada)
+            ->where('id_sala', $this->salaSeleccionada)
             ->where('horario_inicio', '>', $horaInicio)
-            ->orderBy('horario_inicio', 'asc')
-            ->first();
+            ->orderBy('horario_inicio', 'asc');
+        if (!empty($this->disponibilidadSeleccionada['id'])) {
+            $disponibilidadQuery->where('id', '!=', $this->disponibilidadSeleccionada['id']);
+        }
+        $nextAvailability = $disponibilidadQuery->first();
+        
         if ($nextAvailability) {
-            $nextStart = trim($nextAvailability->horario_inicio);
-            $nextStart = substr($nextStart, 0, 5);
-            // Establecemos el límite igual al inicio de la próxima disponibilidad.
+            $nextStart = substr(trim($nextAvailability->horario_inicio), 0, 5);
+            //limite de la disponibilidad
             $limit = Carbon::createFromFormat('H:i', $nextStart);
         } else {
-            // Si no hay próxima disponibilidad, usamos el último slot de la lista base.
-            $lastSlot = end($horarios);
-            $lastSlot = substr(trim($lastSlot), 0, 5);
+            // sino la siguiente disponibilidad o cierre sucursal 
+            $lastSlot = substr(trim(end($horarios)), 0, 5);
             $limit = Carbon::createFromFormat('H:i', $lastSlot);
         }
+        
+        // hora fin=mayores que el inicio y menores o iguales al limit
+        $availableSlots = array_filter($horarios, function($slot) use ($startTime, $limit) {
+            $slot = substr(trim($slot), 0, 5);
+            $slotTime = Carbon::createFromFormat('H:i', $slot);
+            return $slotTime->greaterThan($startTime) && $slotTime->lessThanOrEqualTo($limit);
+        });
+        
+        //depuradcc
+        logger("Hora inicio: " . $startTime->format('H:i') . ", Límite: " . $limit->format('H:i'));
+        logger("Slots disponibles para fin: " . json_encode(array_values($availableSlots)));
+        
+        return array_values($availableSlots);
     }
     
-    // Filtrar la lista base de horarios: devolvemos solo aquellos slots que sean mayores que el inicio y menores o iguales al límite.
-    $availableSlots = array_filter($horarios, function($slot) use ($startTime, $limit) {
-        $slot = substr(trim($slot), 0, 5);
-        $slotTime = Carbon::createFromFormat('H:i', $slot);
-        return $slotTime->greaterThan($startTime) && $slotTime->lessThanOrEqualTo($limit);
-    });
     
-    // Depuración: logueamos los valores
-    logger("Hora inicio: " . $startTime->format('H:i') . ", Límite: " . $limit->format('H:i'));
-    logger("Slots disponibles para fin: " . json_encode(array_values($availableSlots)));
-    
-    return array_values($availableSlots);
-}
 
 
 
@@ -273,11 +263,7 @@ public function getHorariosFinProperty()
 
     
 
-    
 
-    /* =========================================================================
-       Métodos de Interacción y Eventos
-    ========================================================================= */
 
     // el modal para editar una disponibilidad existente
     public function editarDisponibilidad($id)
@@ -378,7 +364,7 @@ public function getHorariosFinProperty()
         $this->cargarDisponibilidad();
     }
     
-    // Se ejecuta cuando se actualiza la sucursal 
+    //  ejecuta cuando se actualiza la sucursal 
     public function updatedSucursalSeleccionada($value)
     {
         $this->sucursalSeleccionada = $value;
@@ -396,7 +382,7 @@ public function getHorariosFinProperty()
         }
     }
 
-    // Actualiza la sucursal a la hora de volver a seleccionarla
+    // actualiza la sucursal a la hora de volver a seleccionarla
     public function actualizarSucursal($value)
     {
         logger('actualizarSucursal: ' . $value);
@@ -404,13 +390,13 @@ public function getHorariosFinProperty()
         $this->horarios = $this->getHorariosListProperty();
     }
 
-    // Actualiza el día a la hora de volver a seleccionarlo
+    // actualiza eldia a la hora de volver a seleccionarlo
     public function actualizarDia()
     {
         $this->horarios = $this->getHorariosListProperty();
     }
 
-    // Actualiza la sala a la hora de vovler a seleccionarlo
+    // actualiza la sala a la hora de vovler a seleccionarlo
     public function actualizarSala($value)
     {
         $this->salaSeleccionada = $value;

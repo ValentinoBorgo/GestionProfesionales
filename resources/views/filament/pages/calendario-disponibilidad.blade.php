@@ -16,6 +16,7 @@
                         <div class="space-y-2">
                             @foreach($this->getHorariosDia($dia) as $horario)
                                 <div 
+                                    
                                     wire:click="editarDisponibilidad({{ $horario['id'] }})"
                                     class="bg-primary-100 dark:bg-gray-700 p-3 rounded-lg cursor-pointer hover:bg-primary-200 transition-colors"
                                 >
@@ -55,12 +56,15 @@
                     <!-- Campo para el día solo en creación -->
                     <div>
                         <label class="block font-medium text-sm text-gray-700">Día</label>
-                        <select class="w-full border-gray-300 rounded" wire:model="disponibilidadSeleccionada.dia" required>
-                            <option value="">Seleccione un día</option>
-                            @foreach($diasSemana as $dia)
-                                <option value="{{ $dia }}">{{ ucfirst($dia) }}</option>
-                            @endforeach
-                        </select>
+                        <select class="w-full border-gray-300 rounded" 
+        wire:model="disponibilidadSeleccionada.dia"
+        wire:change="actualizarDia($event.target.value)" required>
+    <option value="">Seleccione un día</option>
+    @foreach($diasSemana as $dia)
+        <option value="{{ $dia }}">{{ ucfirst($dia) }}</option>
+    @endforeach
+</select>
+
                     </div>
                 @endif
 
@@ -88,27 +92,54 @@
     <div>
 </div>
 
+<!-- Selección de Hora de inicio -->
+<div>
+    <label class="block font-medium text-sm text-gray-700">Hora de inicio</label>
+    <select class="w-full border-gray-300 rounded" 
+            wire:model="disponibilidadSeleccionada.horario_inicio" 
+            wire:change="actualizarHorariosFin" required>
+        <option value="">Seleccione una hora</option>
+        @foreach($this->horariosDisponiblesFiltrados as $hora)
+            <option value="{{ $hora }}">{{ $hora }}</option>
+        @endforeach
+    </select>
 </div>
-                <!-- Hora de inicio -->
-                <div>
-                    <label class="block font-medium text-sm text-gray-700">Hora de inicio</label>
-                    <input type="time" class="w-full border-gray-300 rounded" wire:model="disponibilidadSeleccionada.horario_inicio" required>
-                </div>
 
-                <!-- Hora de fin -->
-                <div>
-                    <label class="block font-medium text-sm text-gray-700">Hora de fin</label>
-                    <input type="time" class="w-full border-gray-300 rounded" wire:model="disponibilidadSeleccionada.horario_fin" required>
-                </div>
-            </div>
+<!-- Selección de Hora de fin -->
+<div>
+    <label class="block font-medium text-sm text-gray-700">Hora de fin</label>
+    <select class="w-full border-gray-300 rounded" wire:model="disponibilidadSeleccionada.horario_fin" required
+            @if(empty($disponibilidadSeleccionada['horario_inicio'])) disabled @endif>
+        <option value="">Seleccione una hora</option>
+        @foreach($this->horariosFin as $hora)
+            <option value="{{ $hora }}">{{ $hora }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="mt-4 flex flex-wrap items-center gap-4 p-4">
 
-            <div class="mt-4">
+    @if(isset($disponibilidadSeleccionada['id']))
+        <!-- Botón para eliminar disponibilidad (solo en edición) -->
+        <button type="button" class="px-4 py-2 text-white rounded hover:bg-red-700"
+        style="background-color: red !important; display: block !important; !important; margin-left: -20px;"
+        onclick="if(confirm('¿Seguro que deseas eliminar esta disponibilidad?')) { @this.call('eliminarDisponibilidad') }">
+    Eliminar Disponibilidad
+</button>
+
+    @endif
+</div>
+
+
+
+
+<div class="mt-4">
                 <button style="background-color: #007bff;" type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                     Guardar cambios
                 </button>
-            </div>  
-        </form>
+</div>  
+</form>
     </div>
 </div>
+
 
 </x-filament::page>
