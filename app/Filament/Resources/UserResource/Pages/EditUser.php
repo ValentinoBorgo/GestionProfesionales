@@ -95,7 +95,6 @@ class EditUser extends EditRecord
                 }
                 //Una sala de una sucursal se encuentra ya ocupada por otro profesional
                 if($isHorarioIsNotAvailable !== true){
-                    dd($isHorarioIsNotAvailable);
                     $sala = Salas::find(intval($isHorarioIsNotAvailable['horario']['idSala']) ?? null);
                     $profesionalOcupando = User::find($isHorarioIsNotAvailable['disponibilidad'][0]->id_usuario ?? null);
                     throw ValidationException::withMessages([
