@@ -47,7 +47,7 @@ class DisponibilidadService
                     });
                 })
                 ->get();
-            if ($disponibilidad->count() > 0 && $disponibilidad->first()->id_usuario !== $profesionalId) {
+                if ($disponibilidad->count() > 0 && $horario['id'] === null) {
                 return ['disponibilidad' => $disponibilidad, 'horario' => $horario];
             }
         }
