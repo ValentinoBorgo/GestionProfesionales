@@ -35,13 +35,8 @@ class DisponibilidadService
         
         $sucursalIds = array_map('intval', $sucursalIds);
 
-        // foreach ($sucursalIds as $sucursalId) {
-        // $sucursal = Sucursal::find($sucursalId);
-
         foreach ($horarios as $horario) {
             $salaId = intval($horario['idSala']) ?? null;
-    
-            dd($sucursalIds);
             $disponibilidad = Disponibilidad::whereIn('id_sucursal', $sucursalIds)
                 ->where('id_sala', $salaId)
                 ->where('dia', $horario['dias_semana'])
@@ -52,10 +47,7 @@ class DisponibilidadService
                     });
                 })
                 ->get();
-            //  if($horario['idSala'] === 7){
-            //      dd($disponibilidad, $sucursalIds);
-            // }
-            if ($disponibilidad->count() > 0 && $disponibilidad->first()->id_usuario !== $profesionalId) {
+                if ($disponibilidad->count() > 0 && $horario['id'] === null) {
                 return ['disponibilidad' => $disponibilidad, 'horario' => $horario];
             }
         }
@@ -66,7 +58,6 @@ class DisponibilidadService
 
     public function verificarHorarioAperturaCierrePorSucursal(array $sucursalIds, array $horarios)
     {
-        //  dd($horarios);
         foreach ($sucursalIds as $sucursalId) {
         $sucursal = Sucursal::find($sucursalId);
         
@@ -77,11 +68,9 @@ class DisponibilidadService
             continue;
         }
     
-        // Definir el horario de apertura y cierre de la sucursal
         $horarioApertura = Carbon::createFromFormat('H:i:s', $sucursal->horario_apertura);
         $horarioCierre = Carbon::createFromFormat('H:i:s', $sucursal->horario_cierre);
     
-        // dd($horarioApertura, $horarioCierre);
         foreach ($horarios as $horario) {
             $horaEntrada = Carbon::createFromFormat('H:i:s', $horario['hora_entrada'])->addSeconds(0);
             $horaSalida = Carbon::createFromFormat('H:i:s', $horario['hora_salida'])->addSeconds(0);
