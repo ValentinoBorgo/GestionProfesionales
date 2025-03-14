@@ -76,7 +76,11 @@ class CrearTurno extends Page
             )
             ->required(),
         DateTimePicker::make('hora_fecha')
+            ->native(false)
+            ->timezone('America/Argentina/Buenos_Aires')
+            ->minutesStep(30)
             ->label('Fecha y Hora')
+            ->displayFormat('d/m/Y H:i')
             ->seconds(false)
             ->required(),
         Select::make('id_paciente')

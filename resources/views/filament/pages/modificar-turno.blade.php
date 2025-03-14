@@ -139,6 +139,7 @@ $selectedProfessional = request()->has('id_profesional') ? request()->get('id_pr
 
 
 <script>
+
 // Función para actualizar el query string (ya definida)
 function updateQueryStringParameter(uri, key, value) {
     var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
@@ -148,6 +149,24 @@ function updateQueryStringParameter(uri, key, value) {
     } else {
         return uri + separator + key + "=" + value;
     }
+}
+function isSlotAvailable(dayIndex, hour, minute) {
+    let dayName = diasSemana[dayIndex];
+    let disponibilidadesDelDia = disponibilidades.filter(function(d) {
+        return d.dia.toLowerCase() === dayName;
+    });
+    let slotTime = hour * 60 + minute;
+    for (let i = 0; i < disponibilidadesDelDia.length; i++) {
+        let d = disponibilidadesDelDia[i];
+        let startParts = d.horario_inicio.split(':');
+        let endParts = d.horario_fin.split(':');
+        let startTime = parseInt(startParts[0]) * 60 + parseInt(startParts[1]);
+        let endTime = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+        if (slotTime >= startTime && slotTime < endTime) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // Parseamos los JSON enviados desde PHP
@@ -222,57 +241,68 @@ function generateCalendarRows() {
     const { minHour, maxHour } = calcularRangoHoras();
     const monday = getMonday(currentDate);
     
+    // Genera filas para cada media hora dentro del rango
     for (let hour = minHour; hour < maxHour; hour++) {
-        // Columna de la hora
-        let hourCell = document.createElement('div');
-        hourCell.className = 'calendar-hour';
-        hourCell.textContent = (hour < 10 ? '0' : '') + hour + ":00";
-        grid.appendChild(hourCell);
-        
-        // Celdas para cada día de la semana
-        for (let day = 0; day < 7; day++) {
-            let cell = document.createElement('div');
-            cell.className = 'calendar-cell';
-            cell.setAttribute('data-day', day);
-            cell.setAttribute('data-hour', hour);
+        for (let minute = 0; minute < 60; minute += 30) {
+            // Columna de la hora y minuto (ej. "09:00" o "09:30")
+            let timeCell = document.createElement('div');
+            timeCell.className = 'calendar-hour';
+            timeCell.textContent = (hour < 10 ? '0' + hour : hour) + ":" + (minute === 0 ? "00" : "30");
+            grid.appendChild(timeCell);
             
-            // Calcula la fecha y hora exacta de la celda
-            let cellDate = new Date(monday);
-            cellDate.setDate(cellDate.getDate() + day);
-            cellDate.setHours(hour, 0, 0, 0);
-            
-            // Si la celda está en un periodo de ausencia, marcamos con "X"
-            if (isAbsent(cellDate)) {
-                cell.classList.add('absent');
-                cell.innerHTML = 'X';
-            } else {
-                // Si no hay ausencia, se marca según la disponibilidad
-                if (isHourAvailable(day, hour)) {
-                    cell.classList.add('available');
-                } else {
-                    cell.classList.add('not-available');
+            // Celdas para cada día de la semana
+            for (let day = 0; day < 7; day++) {
+                let cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                cell.setAttribute('data-day', day);
+                cell.setAttribute('data-hour', hour);
+                cell.setAttribute('data-minute', minute);
+                
+                // Calcula la fecha y hora exacta de la celda
+                let cellDate = new Date(monday);
+                cellDate.setDate(cellDate.getDate() + day);
+                cellDate.setHours(hour, minute, 0, 0);
+                
+                // Verifica si la celda está en un período de ausencia
+                if (isAbsent(cellDate)) {
+                    cell.classList.add('absent');
                     cell.innerHTML = 'X';
+                } else {
+                    // Marca la celda según la disponibilidad en ese intervalo de 30 minutos
+                    if (isSlotAvailable(day, hour, minute)) {
+                        cell.classList.add('available');
+                    } else {
+                        cell.classList.add('not-available');
+                        cell.innerHTML = 'X';
+                    }
                 }
+                grid.appendChild(cell);
             }
-            grid.appendChild(cell);
         }
     }
 }
 
 // Función para marcar los turnos (por ejemplo, con la palabra "Turno")
 function markAppointments() {
+    // Remueve marcas previas
     document.querySelectorAll('.calendar-cell.appointment').forEach(function(cell) {
         cell.classList.remove('appointment');
         cell.innerHTML = '';
     });
     
     let monday = getMonday(currentDate);
+    
     appointments.forEach(function(app) {
         let appDate = new Date(app.hora_fecha);
+        // Sumar 24 horas para compensar el desfase
+        appDate.setTime(appDate.getTime() + 24 * 60 * 60 * 1000);
+        
+        // Verificamos que el turno esté dentro de la semana mostrada
         if (appDate >= monday && appDate < new Date(monday.getTime() + 7 * 24 * 60 * 60 * 1000)) {
             let dayDiff = Math.floor((appDate - monday) / (24 * 60 * 60 * 1000));
             let hour = appDate.getHours();
-            let cell = document.querySelector('.calendar-cell[data-day="'+dayDiff+'"][data-hour="'+hour+'"]');
+            let minute = appDate.getMinutes(); // Debe ser 0 o 30
+            let cell = document.querySelector('.calendar-cell[data-day="' + dayDiff + '"][data-hour="' + hour + '"][data-minute="' + minute + '"]');
             if (cell) {
                 cell.classList.add('appointment');
                 cell.innerHTML = 'Turno';
@@ -280,6 +310,8 @@ function markAppointments() {
         }
     });
 }
+
+
 
 // Variables para el manejo de la semana
 const weekRangeElem = document.getElementById('weekRange');
@@ -296,12 +328,10 @@ function updateCalendarHeader() {
 
     // Actualiza las cabeceras de cada día con su fecha
     const dayHeaders = document.querySelectorAll('.calendar-day-header');
-    // El primer elemento es la celda vacía, empezamos en 1 (Lunes) hasta 7 (Domingo)
     for (let i = 1; i < dayHeaders.length; i++) {
         let dayDate = new Date(monday);
         dayDate.setDate(monday.getDate() + (i - 1));
         let formattedDate = dayDate.getDate() + '/' + (dayDate.getMonth() + 1);
-        // Usa el array de nombres de días. Nota: el array "diasSemana" tiene los nombres en minúscula.
         let dayName = diasSemana[i - 1];
         dayName = dayName.charAt(0).toUpperCase() + dayName.slice(1);
         dayHeaders[i].innerHTML = dayName + '<br>' + formattedDate;

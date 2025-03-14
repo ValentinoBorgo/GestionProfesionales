@@ -37,7 +37,7 @@ class CalendarioDisponibilidad extends Page
 
 
 
-    // esto se ejecuta cuando el componente se "monta"
+    // esto se ejecuta cuando el componente se "monta" se
     public function mount()
     {
         $this->cargarDisponibilidad();
@@ -192,60 +192,111 @@ class CalendarioDisponibilidad extends Page
 
 
     public function getHorariosFinProperty()
-    {
-        // si no se ha seleccionado una hora de inicio, devolvemos la lista completa.
-        $horaInicio = trim($this->disponibilidadSeleccionada['horario_inicio'] ?? '');
-        if (!$horaInicio) {
-            return $this->getHorariosListProperty();
-        }
-        
-        $horaInicio = substr($horaInicio, 0, 5);
-        $startTime = Carbon::createFromFormat('H:i', $horaInicio);
-        
-        // dias a minusculas o no anda esta mierda
-        $dia = strtolower(trim($this->disponibilidadSeleccionada['dia'] ?? ''));
-        if (!$dia) {
-            return $this->getHorariosListProperty();
-        }
-        
-        //lista base de horarios (según la sucursal)
-        $horarios = $this->getHorariosListProperty();
-        
-        // determinar el limit, consultamos TODAS las disponibilidades para ese día, sucursal y sala
-        $disponibilidadQuery = Disponibilidad::withoutGlobalScopes()
-            ->whereRaw('LOWER(dia) = ?', [$dia])
-            ->where('id_sucursal', $this->sucursalSeleccionada)
-            ->where('id_sala', $this->salaSeleccionada)
-            ->where('horario_inicio', '>', $horaInicio)
-            ->orderBy('horario_inicio', 'asc');
-        if (!empty($this->disponibilidadSeleccionada['id'])) {
-            $disponibilidadQuery->where('id', '!=', $this->disponibilidadSeleccionada['id']);
-        }
-        $nextAvailability = $disponibilidadQuery->first();
-        
-        if ($nextAvailability) {
-            $nextStart = substr(trim($nextAvailability->horario_inicio), 0, 5);
-            //limite de la disponibilidad
-            $limit = Carbon::createFromFormat('H:i', $nextStart);
-        } else {
-            // sino la siguiente disponibilidad o cierre sucursal 
-            $lastSlot = substr(trim(end($horarios)), 0, 5);
-            $limit = Carbon::createFromFormat('H:i', $lastSlot);
-        }
-        
-        // hora fin=mayores que el inicio y menores o iguales al limit
-        $availableSlots = array_filter($horarios, function($slot) use ($startTime, $limit) {
-            $slot = substr(trim($slot), 0, 5);
-            $slotTime = Carbon::createFromFormat('H:i', $slot);
-            return $slotTime->greaterThan($startTime) && $slotTime->lessThanOrEqualTo($limit);
-        });
-        
-        //depuradcc
-        logger("Hora inicio: " . $startTime->format('H:i') . ", Límite: " . $limit->format('H:i'));
-        logger("Slots disponibles para fin: " . json_encode(array_values($availableSlots)));
-        
-        return array_values($availableSlots);
+{
+    // Si no se ha seleccionado una hora de inicio, devolvemos la lista completa.
+    $horaInicio = trim($this->disponibilidadSeleccionada['horario_inicio'] ?? '');
+    if (!$horaInicio) {
+        return $this->getHorariosListProperty();
     }
+    $horaInicio = substr($horaInicio, 0, 5);
+    $startTime = Carbon::createFromFormat('H:i', $horaInicio);
+
+    // Obtenemos el día en minúsculas para la comparación (por consistencia)
+    $dia = strtolower(trim($this->disponibilidadSeleccionada['dia'] ?? ''));
+    if (!$dia) {
+        return $this->getHorariosListProperty();
+    }
+
+    // Obtenemos la lista base de horarios (según la sucursal)
+    $horarios = $this->getHorariosListProperty();
+
+    // Definición del límite:
+    // Consultamos TODAS las disponibilidades (sin filtrar por id_usuario) para ese día, sucursal y sala
+    $disponibilidadQuery = Disponibilidad::withoutGlobalScopes()
+        ->whereRaw('LOWER(dia) = ?', [$dia])
+        ->where('id_sucursal', $this->sucursalSeleccionada)
+        ->where('id_sala', $this->salaSeleccionada)
+        ->where('horario_inicio', '>', $horaInicio)
+        ->orderBy('horario_inicio', 'asc');
+
+    if (!empty($this->disponibilidadSeleccionada['id'])) {
+        $disponibilidadQuery->where('id', '!=', $this->disponibilidadSeleccionada['id']);
+    }
+    $nextAvailability = $disponibilidadQuery->first();
+
+    if ($nextAvailability) {
+        $nextStart = substr(trim($nextAvailability->horario_inicio), 0, 5);
+        // El límite es el inicio de la siguiente disponibilidad
+        $limit = Carbon::createFromFormat('H:i', $nextStart);
+    } else {
+        // Si no existe una siguiente disponibilidad, se toma el último slot (cierre de la sucursal)
+        $lastSlot = substr(trim(end($horarios)), 0, 5);
+        $limit = Carbon::createFromFormat('H:i', $lastSlot);
+    }
+
+    // Filtrar los horarios de la lista base: se permiten aquellos mayores que el inicio y menores o iguales al límite.
+    $availableSlots = array_filter($horarios, function($slot) use ($startTime, $limit) {
+        $slot = substr(trim($slot), 0, 5);
+        $slotTime = Carbon::createFromFormat('H:i', $slot);
+        return $slotTime->greaterThan($startTime) && $slotTime->lessThanOrEqualTo($limit);
+    });
+
+    logger("Hora inicio: " . $startTime->format('H:i') . ", Límite: " . $limit->format('H:i'));
+    logger("Slots disponibles para fin: " . json_encode(array_values($availableSlots)));
+
+    return array_values($availableSlots);
+}
+
+
+/**
+ * Valida si el profesional logueado tiene algún conflicto (solapamiento)
+ * con el intervalo (hora de inicio y fin) que se intenta guardar, sin importar
+ * la sucursal o sala.
+ */
+public function checkUserAvailabilityConflict(): bool
+{
+    // Se obtienen día, hora de inicio y hora de fin de la disponibilidad en edición/creación.
+    $dia = strtolower(trim($this->disponibilidadSeleccionada['dia'] ?? ''));
+    $horaInicio = trim($this->disponibilidadSeleccionada['horario_inicio'] ?? '');
+    $horaFin = trim($this->disponibilidadSeleccionada['horario_fin'] ?? '');
+
+    // Si alguno no está definido, no hay conflicto.
+    if (!$dia || !$horaInicio || !$horaFin) {
+        return false;
+    }
+
+    // Normalizamos las horas (por ejemplo, "08:00:00" a "08:00")
+    $horaInicio = substr($horaInicio, 0, 5);
+    $horaFin = substr($horaFin, 0, 5);
+
+    // Convertimos a objetos Carbon
+    $nuevoInicio = Carbon::createFromFormat('H:i', $horaInicio);
+    $nuevoFin    = Carbon::createFromFormat('H:i', $horaFin);
+
+    // Consulta todas las disponibilidades del profesional para ese día
+    // Excluyendo, si es el caso, el registro que se está editando.
+    $conflictDisponibilidades = Disponibilidad::whereRaw('LOWER(dia) = ?', [$dia])
+        ->where('id_usuario', Auth::id())
+        ->when(!empty($this->disponibilidadSeleccionada['id']), function($query) {
+            $query->where('id', '!=', $this->disponibilidadSeleccionada['id']);
+        })
+        ->get();
+
+    // Recorremos cada disponibilidad existente y verificamos si se solapa
+    foreach ($conflictDisponibilidades as $disp) {
+        // Convertimos las horas de la disponibilidad existente (se asume formato H:i:s)
+        $existenteInicio = Carbon::createFromFormat('H:i:s', $disp->horario_inicio);
+        $existenteFin    = Carbon::createFromFormat('H:i:s', $disp->horario_fin);
+
+        // Dos intervalos se solapan si: nuevoInicio < existenteFin Y nuevoFin > existenteInicio
+        if ($nuevoInicio->lessThan($existenteFin) && $nuevoFin->greaterThan($existenteInicio)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
     
     
 
@@ -279,7 +330,7 @@ class CalendarioDisponibilidad extends Page
     public function crearDisponibilidad()
 {
     logger('crearDisponibilidad disparado');
-    $diaHoy = date('l'); // Ejemplo: "Wednesday"
+    $diaHoy = date('l'); // filament/livewire aggarrar dias en ingles asi q hay q pasarlo a espaol
     $dias = [
         'Monday'    => 'lunes',
         'Tuesday'   => 'martes',
@@ -318,7 +369,15 @@ class CalendarioDisponibilidad extends Page
             $rules['disponibilidadSeleccionada.dia'] = 'required|in:lunes,martes,miercoles,jueves,viernes,sabado,domingo';
         }
         $this->validate($rules);
-
+        if ($this->checkUserAvailabilityConflict()) {
+            // Puedes mostrar una notificación o lanzar una excepción para indicar el conflicto.
+            \Filament\Notifications\Notification::make()
+                ->title('Error')
+                ->body('Ya tienes una disponibilidad que se solapa con este intervalo en otro lugar.')
+                ->danger()
+                ->send();
+            return;
+        }
         if (isset($this->disponibilidadSeleccionada['id'])) {
             $model = Disponibilidad::find($this->disponibilidadSeleccionada['id']);
             $model->id_sucursal    = $this->disponibilidadSeleccionada['id_sucursal'];

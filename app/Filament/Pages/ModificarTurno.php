@@ -59,7 +59,11 @@ class ModificarTurno extends Page
 
         return $form->schema([
             DateTimePicker::make('hora_fecha')
+            ->native(false)
+            ->timezone('America/Argentina/Buenos_Aires')
+            ->minutesStep(30)
             ->label('Fecha y Hora')
+            ->seconds(false)
             ->reactive()
             ->required(function ($get) use ($CANCELADO_CLIENTE, $CANCELADO_PROFESIONAL) {
                 return !in_array($get('id_estado'), [$CANCELADO_CLIENTE, $CANCELADO_PROFESIONAL]);
@@ -109,7 +113,7 @@ class ModificarTurno extends Page
             $this->turnoService->validarHorarioSucursal($horaFecha, $secretario);
             $this->turnoService->disponibilidadProfesional($this->data['id_profesional'], $horaFecha, $this->turno->id, $this->data['id_estado']);
             $this->turnoService->ausenciaProfesional($this->data['id_profesional'], $horaFecha);
-            $this->turnoService->validarDisponibilidadProfesional($data['id_profesional'], $horaFecha);
+            $this->turnoService->validarDisponibilidadProfesional($this->data['id_profesional'], $horaFecha);
             $sala = $this->turnoService->getSalaDisponible($horaFecha, $this->data['id_tipo_turno'], $secretario, $this->turno->id, $this->data['id_estado']);
 
             $this->turno->update([

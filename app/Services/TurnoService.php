@@ -67,33 +67,29 @@ class TurnoService
 
     public function disponibilidadProfesional($idProfesional, \DateTime $horaFecha, $idTurnoExcluido = null)
     {
-
-        // $CANCELADO_CLIENTE = EstadoTurno::where('codigo', EstadoTurno::CANCELADO_CLIENTE)->first()->id ?? null;
-        // $CANCELADO_PROFESIONAL = EstadoTurno::where('codigo', EstadoTurno::CANCELADO_PROFESIONAL)->first()->id ?? null;
-
-        // if (in_array(intval($idEstado), [$CANCELADO_CLIENTE, $CANCELADO_PROFESIONAL])) {
-        //     return;
-        // }
-
-        $inicioRango = (clone $horaFecha)->modify('-1 hour');
-        $finRango = (clone $horaFecha)->modify('+1 hour');
-
+        // Para un turno de 30 minutos, consideramos el intervalo desde el inicio hasta 30 minutos después.
+        $inicioRango = (clone $horaFecha);
+        $finRango = (clone $horaFecha)->modify('+30 minutes');
+    
         $query = Turno::where('id_profesional', $idProfesional)
-            ->whereBetween('hora_fecha', [$inicioRango, $finRango])
+            ->where('hora_fecha', '>=', $inicioRango)
+            ->where('hora_fecha', '<', $finRango)
             ->whereHas('estado', function ($query) {
                 $query->whereIn('codigo', ['ASIGNADO', 'REPROGRAMADO']);
             });
-
+    
         if ($idTurnoExcluido) {
             $query->where('id', '<>', $idTurnoExcluido);
         }
-
+    
         if ($query->exists()) {
             throw ValidationException::withMessages([
                 'hora_fecha' => 'El profesional ya tiene un turno asignado en el rango de tiempo indicado.',
             ]);
         }
     }
+    
+
 
     public function ausenciaProfesional($idProfesional, \DateTime $horaFecha)
     {
@@ -113,60 +109,53 @@ class TurnoService
     }
 
     public function getSalaDisponible(\DateTime $horaFecha, $idTipoTurno, $secretario, $idTurnoExcluido = null)
-    {
+{
+    $tipoTurno = TipoTurno::find($idTipoTurno);
+    $sucursalesUsuario = collect($secretario->sucursales);
 
-        // $CANCELADO_CLIENTE = EstadoTurno::where('codigo', EstadoTurno::CANCELADO_CLIENTE)->first()->id ?? null;
-        // $CANCELADO_PROFESIONAL = EstadoTurno::where('codigo', EstadoTurno::CANCELADO_PROFESIONAL)->first()->id ?? null;
+    if ($sucursalesUsuario->count() === 0) {
+        $sucursalesUsuario = collect($secretario->sucursalesGenerales ?? []);
+    }
 
-        // if (in_array(intval($idEstado), [$CANCELADO_CLIENTE, $CANCELADO_PROFESIONAL])) {
-        //     return;
-        // }
+    if ($sucursalesUsuario->count() === 0) {
+        throw ValidationException::withMessages([
+            'error' => 'El usuario no tiene sucursales asignadas.',
+        ]);
+    }
 
-        $tipoTurno = TipoTurno::find($idTipoTurno);
-        //AL CREAR UN TURNO CON SECRETARIOS VA SUCUSARLES
-        $sucursalesUsuario = collect($secretario->sucursales);
-
-        if ($sucursalesUsuario->count() === 0) {
-            $sucursalesUsuario = collect($secretario->sucursalesGenerales ?? []);
-        }
-
-        if ($sucursalesUsuario->count() === 0) {
-            throw ValidationException::withMessages([
-                'error' => 'El usuario no tiene sucursales asignadas.',
-            ]);
-        }
-
-        $sucursalIds = $sucursalesUsuario->pluck('id')->toArray();
-        
-        $salasDisponibles = Salas::whereIn('id_sucursal', $sucursalIds)
+    $sucursalIds = $sucursalesUsuario->pluck('id')->toArray();
+    
+    $salasDisponibles = Salas::whereIn('id_sucursal', $sucursalIds)
         ->where('tipo', $tipoTurno->codigo)
         ->get();
 
-        $inicioRango = (clone $horaFecha)->modify('-1 hour');
-        $finRango = (clone $horaFecha)->modify('+1 hour');
+    // Rango de 30 minutos para el turno
+    $inicioRango = (clone $horaFecha);
+    $finRango = (clone $horaFecha)->modify('+30 minutes');
 
-        //Cuando se agenda un turno, no permite que se eligan un turno 12:00 12:01,
-        $salasOcupadas = Turno::whereBetween('hora_fecha', [$inicioRango, $finRango])
-            ->when($idTurnoExcluido, function ($query) use ($idTurnoExcluido) {
-                $query->where('id', '<>', $idTurnoExcluido); // excluir el turno que se está modificando
-            })
-            ->whereHas('sala', function ($query) use ($tipoTurno, $sucursalIds) {
-                $query->where('tipo', $tipoTurno->codigo)
-                    ->whereIn('id_sucursal', $sucursalIds);
-            })
-            ->whereHas('estado', function ($query) {
-                $query->whereIn('codigo', ['ASIGNADO', 'REPROGRAMADO']);
-            })
-            ->count();
-            
-        if ($salasOcupadas >= $salasDisponibles->count()) {
-            throw ValidationException::withMessages([
-                'hora_fecha' => 'No hay salas disponibles en este rango de tiempo.',
-            ]);
-        }
+    $salasOcupadas = Turno::where('hora_fecha', '>=', $inicioRango)
+    ->where('hora_fecha', '<', $finRango)
+    ->when($idTurnoExcluido, function ($query) use ($idTurnoExcluido) {
+        $query->where('id', '<>', $idTurnoExcluido);
+    })
+    ->whereHas('sala', function ($query) use ($tipoTurno, $sucursalIds) {
+        $query->where('tipo', $tipoTurno->codigo)
+            ->whereIn('id_sucursal', $sucursalIds);
+    })
+    ->whereHas('estado', function ($query) {
+        $query->whereIn('codigo', ['ASIGNADO', 'REPROGRAMADO']);
+    })
+    ->count();
 
-        return $salasDisponibles->first();
+        
+    if ($salasOcupadas >= $salasDisponibles->count()) {
+        throw ValidationException::withMessages([
+            'hora_fecha' => 'No hay salas disponibles en este rango de tiempo.',
+        ]);
     }
+
+    return $salasDisponibles->first();
+}
 
 
     // get del secretario q esta logueado
@@ -182,44 +171,44 @@ class TurnoService
  }
 
  public function validarDisponibilidadProfesional($idProfesional, \DateTime $horaFecha)
-{
-    // Busca al profesional y obtén su id_persona (que se usa en disponibilidad)
-    $profesional = \App\Models\Profesional::find($idProfesional);
-    if (!$profesional) {
-        throw ValidationException::withMessages([
-            'id_profesional' => 'Profesional no encontrado.',
-        ]);
-    }
-    $idPersona = $profesional->id_persona;
-    
-
-    $diaEnglish = $horaFecha->format('l'); 
-    $dias = [
-        'Monday'    => 'lunes',
-        'Tuesday'   => 'martes',
-        'Wednesday' => 'miercoles',
-        'Thursday'  => 'jueves',
-        'Friday'    => 'viernes',
-        'Saturday'  => 'sabado',
-        'Sunday'    => 'domingo',
-    ];
-    $dia = strtolower($dias[$diaEnglish]);
-    
-
-    $horaTurno = $horaFecha->format('H:i:s');
-
-
-    $disponibilidad = \App\Models\Disponibilidad::where('id_usuario', $idPersona)
-        ->where('dia', $dia)
-        ->where('horario_inicio', '<=', $horaTurno)
-        ->where('horario_fin', '>=', $horaTurno)
-        ->first();
-
-    if (!$disponibilidad) {
-        throw ValidationException::withMessages([
-            'hora_fecha' => 'El profesional no tiene disponibilidad en la fecha y hora seleccionada.',
-        ]);
-    }
-}
+ {
+     $profesional = \App\Models\Profesional::find($idProfesional);
+     if (!$profesional) {
+         throw ValidationException::withMessages([
+             'id_profesional' => 'Profesional no encontrado.',
+         ]);
+     }
+     $idPersona = $profesional->id_persona;
+     
+     // Convertir el día a minúsculas
+     $diaEnglish = $horaFecha->format('l'); 
+     $dias = [
+         'Monday'    => 'lunes',
+         'Tuesday'   => 'martes',
+         'Wednesday' => 'miercoles',
+         'Thursday'  => 'jueves',
+         'Friday'    => 'viernes',
+         'Saturday'  => 'sabado',
+         'Sunday'    => 'domingo',
+     ];
+     $dia = strtolower($dias[$diaEnglish]);
+     
+     // Para un turno de 30 minutos, calculamos el inicio y fin del turno
+     $horaInicio = $horaFecha->format('H:i:s');
+     $horaFin = (clone $horaFecha)->modify('+30 minutes')->format('H:i:s');
+ 
+     $disponibilidad = \App\Models\Disponibilidad::where('id_usuario', $idPersona)
+         ->where('dia', $dia)
+         ->where('horario_inicio', '<=', $horaInicio)
+         ->where('horario_fin', '>=', $horaFin)
+         ->first();
+ 
+     if (!$disponibilidad) {
+         throw ValidationException::withMessages([
+             'hora_fecha' => 'El profesional no tiene disponibilidad en la fecha y hora seleccionada.',
+         ]);
+     }
+ }
+ 
 
 }
