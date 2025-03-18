@@ -293,7 +293,8 @@ function generateCalendarRows() {
                 // Verifica si la celda está en un período de ausencia
                 if (isAbsent(cellDate)) {
                     cell.classList.add('absent');
-                    cell.innerHTML = 'X';
+                    cell.innerHTML = 'Ausente';
+                    cell.style.color = 'red';
                 } else {
                     // Marca la celda según la disponibilidad en ese intervalo de 30 minutos
                     if (isSlotAvailable(day, hour, minute)) {

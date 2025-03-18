@@ -28,14 +28,12 @@ class Agenda extends Page
         if ($user->profesional) {
             $profesionalId = $user->profesional->id;
 
-            // Obtener los turnos del profesional autenticado y que no estén cancelados
             $this->turnos = Turno::with(['paciente', 'sala.sucursal', 'paciente.fichaMedica', 'estado'])
-                ->where('id_profesional', $profesionalId) // Filtra por el profesional autenticado
-                ->orderBy('hora_fecha', 'asc') // Ordena por hora
+                ->where('id_profesional', $profesionalId) 
+                ->orderBy('hora_fecha', 'asc') 
                 ->get();
         } else {
-            // Si no hay un profesional asociado, dejar el objeto vacío o manejar el caso
-            $this->turnos = collect(); // Devuelve una colección vacía
+            $this->turnos = collect(); 
         }
     }
 }

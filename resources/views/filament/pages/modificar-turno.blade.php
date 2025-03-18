@@ -266,7 +266,8 @@ function generateCalendarRows() {
                 // Verifica si la celda está en un período de ausencia
                 if (isAbsent(cellDate)) {
                     cell.classList.add('absent');
-                    cell.innerHTML = 'X';
+                    cell.innerHTML = 'Ausente';
+                    cell.style.color = 'red';
                 } else {
                     // Marca la celda según la disponibilidad en ese intervalo de 30 minutos
                     if (isSlotAvailable(day, hour, minute)) {
@@ -295,7 +296,7 @@ function markAppointments() {
     appointments.forEach(function(app) {
         let appDate = new Date(app.hora_fecha);
         // Sumar 24 horas para compensar el desfase
-        appDate.setTime(appDate.getTime() + 24 * 60 * 60 * 1000);
+        // appDate.setTime(appDate.getTime() + 24 * 60 * 60 * 1000);
         
         // Verificamos que el turno esté dentro de la semana mostrada
         if (appDate >= monday && appDate < new Date(monday.getTime() + 7 * 24 * 60 * 60 * 1000)) {

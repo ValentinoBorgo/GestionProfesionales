@@ -7,6 +7,8 @@ use App\Models\TipoTurno;
 use App\Models\Salas;
 use App\Models\Sucursal;
 use App\Models\Ausencias;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -93,15 +95,35 @@ class TurnoService
 
     public function ausenciaProfesional($idProfesional, \DateTime $horaFecha)
     {
-        $ausente = \DB::table('ausencias')
-            ->where('id_usuario', $idProfesional)
-            ->where(function ($query) use ($horaFecha) {
-                $query->where('fecha_inicio', '<=', $horaFecha)
-                    ->where('fecha_fin', '>=', $horaFecha);
-            })
-            ->exists();
 
-        if ($ausente) {
+
+$horaFecha = Carbon::parse($horaFecha) // Parsea la fecha
+    ->format('Y-m-d H:i:s');          // Formato compatible con MySQL
+
+// Obtener el ID de la persona asociada al profesional
+$idPersona = DB::table('profesional')
+    ->where('id', intval($idProfesional))
+    ->value('id_persona'); // Devuelve directamente el valor en lugar de una colección
+
+// Verificar que se encontró un id_persona antes de continuar
+if (!$idPersona) {
+    throw new \Exception("No se encontró el id_persona para el id_profesional: $idProfesional");
+}
+
+// Consultar ausencias
+$ausente = DB::table('ausencias')
+    ->where('id_usuario', intval($idPersona))
+    ->where(function ($query) use ($horaFecha) {
+        $query->where('fecha_inicio', '<=', $horaFecha)
+              ->where('fecha_fin', '>=', $horaFecha);
+    })
+    ->get();
+
+
+ // dd($ausente,$horaFecha, $idProfesional);
+       
+
+        if ($ausente->isNotEmpty()) {
             throw ValidationException::withMessages([
                 'hora_fecha' => 'El profesional no está disponible en la fecha y hora seleccionada debido a una ausencia.',
             ]);

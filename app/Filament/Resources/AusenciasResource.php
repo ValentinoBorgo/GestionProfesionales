@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class AusenciasResource extends Resource
 {
@@ -42,13 +43,30 @@ class AusenciasResource extends Resource
                     ->required()
                     ->maxLength(255),
 
-                Forms\Components\DatePicker::make('fecha_inicio')
+                Forms\Components\DateTimePicker::make('fecha_inicio')
+                    ->native(false)
+                    ->timezone('America/Argentina/Buenos_Aires')
                     ->label('Fecha de Inicio')
+                    ->minutesStep(30)
+                    ->displayFormat('d/m/Y H:i')
+                    ->seconds(false)
                     ->required(),
 
-                Forms\Components\DatePicker::make('fecha_fin')
+                Forms\Components\DateTimePicker::make('fecha_fin')
+                    ->native(false)
+                    ->timezone('America/Argentina/Buenos_Aires')
                     ->label('Fecha de Fin')
-                    ->required(),
+                    ->minutesStep(30)
+                    ->displayFormat('d/m/Y H:i')
+                    ->seconds(false)
+                    ->required()
+                    ->rule(function (\Filament\Forms\Get $get) {
+                        return function (string $attribute, $value, \Closure $fail) use ($get) {
+                            if ($value <= $get('fecha_inicio')) {
+                                $fail('La fecha de fin no puede ser menor que la fecha de inicio.');
+                            }
+                        };
+                    }),
             ]);
     }
 
@@ -73,12 +91,12 @@ class AusenciasResource extends Resource
 
                 Tables\Columns\TextColumn::make('fecha_inicio')
                     ->label('Fecha de Inicio')
-                    ->date()
+                    ->datetime()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('fecha_fin')
                     ->label('Fecha de Fin')
-                    ->date()
+                    ->datetime()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')

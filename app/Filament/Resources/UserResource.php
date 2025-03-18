@@ -356,7 +356,7 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('telefono'),
                 Tables\Columns\TextColumn::make('fecha_nac')
-                    ->dateTime(),
+                    ->date(),
                 Tables\Columns\TextColumn::make('edad'),
                 Tables\Columns\TextColumn::make('domicilio'),
                 Tables\Columns\TextColumn::make('id_tipo')

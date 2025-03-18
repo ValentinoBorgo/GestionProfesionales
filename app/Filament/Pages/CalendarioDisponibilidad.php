@@ -8,6 +8,7 @@ use App\Models\Salas;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class CalendarioDisponibilidad extends Page

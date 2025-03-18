@@ -62,6 +62,7 @@ class ModificarTurno extends Page
             ->native(false)
             ->timezone('America/Argentina/Buenos_Aires')
             ->minutesStep(30)
+            ->displayFormat('d/m/Y H:i')
             ->label('Fecha y Hora')
             ->seconds(false)
             ->reactive()
